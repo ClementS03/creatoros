@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
               "connect-src 'self' https://*.supabase.co https://api.stripe.com https://eu.i.posthog.com",
               "frame-src https://js.stripe.com",
+              "font-src 'self'",
             ].join("; "),
           },
         ],
