@@ -1,5 +1,7 @@
+"use client";
 import type { Product } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckoutButton } from "@/components/checkout/CheckoutButton";
 
 type Props = {
   product: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type">;
@@ -25,6 +27,7 @@ export function ProductCard({ product }: Props) {
         )}
         <div className="flex items-center justify-between">
           <span className="font-bold text-lg">{price}</span>
+          <CheckoutButton productId={product.id} price={product.price} />
         </div>
       </CardContent>
     </Card>
