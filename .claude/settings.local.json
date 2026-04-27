@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk git:*)",
+      "Bash(rtk tsc:*)",
+      "Bash(rtk vitest:*)",
+      "Bash(rtk next:*)",
+      "Bash(rtk pnpm:*)",
+      "Bash(rtk npm:*)",
+      "Bash(rtk npx:*)",
+      "Bash(rtk grep:*)",
+      "Bash(rtk ls:*)",
+      "Bash(git *)",
+      "Bash(node *)",
+      "Bash(npm install:*)",
+      "Bash(npm add:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npx next *)",
+      "Bash(npx eslint:*)",
+      "Bash(node_modules/.bin/vitest run:*)",
+      "Bash(./node_modules/.bin/vitest run:*)",
+      "Bash(curl *)",
+      "Bash(bash *)",
+      "Bash(node -e ' *)",
+      "Bash(node -e \" *)",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__list_migrations",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Vercel__list_projects",
+      "mcp__claude_ai_Vercel__list_teams",
+      "mcp__claude_ai_Vercel__get_runtime_logs"
+    ]
+  }
+}
