@@ -17,7 +17,8 @@ export default function StorefrontSettingsPage() {
   useEffect(() => {
     fetch("/api/storefront")
       .then((r) => r.json())
-      .then((c: Creator) => {
+      .then((c: Creator | null) => {
+        if (!c) return;
         setCreator(c);
         setUsername(c.username ?? "");
         setBio(c.bio ?? "");

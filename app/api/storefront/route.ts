@@ -7,7 +7,20 @@ export async function GET() {
   const supabase = await createSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { data } = await supabase.from("creators").select("*").eq("id", user.id).single();
+
+  let { data } = await supabase.from("creators").select("*").eq("id", user.id).single();
+
+  // Lazy-create profile if trigger didn't fire (e.g. OAuth edge cases)
+  if (!data) {
+    const username = user.email?.split("@")[0].replace(/[^a-z0-9_-]/gi, "").toLowerCase() ?? "creator";
+    const { data: created } = await supabase
+      .from("creators")
+      .insert({ id: user.id, email: user.email, full_name: user.user_metadata?.full_name, avatar_url: user.user_metadata?.avatar_url, username })
+      .select()
+      .single();
+    data = created;
+  }
+
   return NextResponse.json(data);
 }
 

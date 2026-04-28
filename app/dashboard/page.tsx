@@ -8,7 +8,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   const { data: creator } = await supabase
     .from("creators")
-    .select("full_name, username, stripe_account_enabled, plan")
+    .select("full_name, username, stripe_account_id, plan")
     .eq("id", user!.id)
     .single();
 
@@ -32,7 +32,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {!creator?.stripe_account_enabled && (
+      {!creator?.stripe_account_id && (
         <div className="p-4 border border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg text-sm">
           <p className="font-medium text-yellow-800 dark:text-yellow-200">
             Connect Stripe to start selling
