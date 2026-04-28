@@ -40,6 +40,8 @@ export default function StorefrontSettingsPage() {
       const { error } = await res.json() as { error: string };
       setError(error ?? "Failed to save");
     } else {
+      const updated = await res.json() as Creator;
+      setCreator(updated);
       setSuccess(true);
     }
     setSaving(false);
@@ -53,12 +55,12 @@ export default function StorefrontSettingsPage() {
       <p className="text-sm text-muted-foreground">
         Your storefront:{" "}
         <a
-          href={`https://${creator.username}.creatoroshq.com`}
+          href={`https://${username || creator.username}.creatoroshq.com`}
           target="_blank"
           rel="noopener noreferrer"
-          className="underline"
+          className="underline font-mono text-primary"
         >
-          {creator.username}.creatoroshq.com
+          {username || creator.username}.creatoroshq.com
         </a>
       </p>
       <form onSubmit={handleSave} className="space-y-4">
