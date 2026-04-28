@@ -3,6 +3,7 @@ import { createSupabaseBrowser } from "@/lib/supabase-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -23,28 +24,19 @@ export default function SignupPage() {
       password,
       options: { emailRedirectTo: `${location.origin}/api/auth/callback` },
     });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
+    if (error) { setError(error.message); setLoading(false); return; }
     setDone(true);
-  }
-
-  async function handleGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${location.origin}/api/auth/callback` },
-    });
   }
 
   if (done) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold">Check your email</h1>
-          <p className="text-muted-foreground">
-            We sent a confirmation link to {email}
+        <div className="text-center space-y-2 max-w-sm px-4">
+          <div className="text-4xl">✉️</div>
+          <h1 className="text-2xl font-bold">Check your inbox</h1>
+          <p className="text-muted-foreground text-sm">
+            We sent a confirmation link to <strong>{email}</strong>.
+            Click it to activate your account.
           </p>
         </div>
       </div>
@@ -54,12 +46,13 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-sm space-y-6 p-8 border rounded-xl shadow-sm">
-        <h1 className="text-2xl font-bold text-center">
-          Create your CreatorOS account
-        </h1>
-        <Button variant="outline" className="w-full" onClick={handleGoogle}>
-          Continue with Google
-        </Button>
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl font-bold">Create your storefront</h1>
+          <p className="text-sm text-muted-foreground">Free forever. No credit card required.</p>
+        </div>
+
+        <GoogleButton />
+
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -68,38 +61,26 @@ export default function SignupPage() {
             <span className="bg-background px-2 text-muted-foreground">or</span>
           </div>
         </div>
+
         <form onSubmit={handleSignup} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
-              required
-            />
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} required />
+            <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creating account…" : "Create account — it's free"}
+            {loading ? "Creating account…" : "Create free account"}
           </Button>
         </form>
+
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="underline">
-            Sign in
-          </Link>
+          <Link href="/login" className="underline">Sign in</Link>
         </p>
       </div>
     </div>
