@@ -8,7 +8,6 @@ export async function POST() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Ensure creator profile exists
     let { data: creator } = await supabase
       .from("creators")
       .select("stripe_account_id, email")
@@ -55,5 +54,33 @@ export async function POST() {
   } catch (err) {
     console.error("Stripe connect error:", err);
     return NextResponse.json({ error: "Failed to create Stripe Connect link" }, { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  try {
+    const supabase = await createSupabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { data: creator } = await supabase
+      .from("creators")
+      .select("stripe_account_id")
+      .eq("id", user.id)
+      .single();
+
+    if (creator?.stripe_account_id) {
+      await stripe.accounts.del(creator.stripe_account_id as string);
+    }
+
+    await supabase
+      .from("creators")
+      .update({ stripe_account_id: null })
+      .eq("id", user.id);
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Stripe disconnect error:", err);
+    return NextResponse.json({ error: "Failed to disconnect" }, { status: 500 });
   }
 }
