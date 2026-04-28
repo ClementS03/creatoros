@@ -48,7 +48,7 @@ export default function SignupPage() {
       <div className="w-full max-w-sm space-y-6 p-8 border rounded-xl shadow-sm">
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-bold">Create your storefront</h1>
-          <p className="text-sm text-muted-foreground">Free forever. No credit card required.</p>
+          <p className="text-sm text-muted-foreground">No credit card required. Free to start.</p>
         </div>
 
         <GoogleButton />
