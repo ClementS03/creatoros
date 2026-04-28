@@ -22,11 +22,11 @@ export async function POST(request: NextRequest) {
 
   const { data: creator } = await supabase
     .from("creators")
-    .select("stripe_account_id, stripe_account_enabled, plan")
+    .select("stripe_account_id, plan")
     .eq("id", product.creator_id)
     .single();
 
-  if (!creator?.stripe_account_id || !creator.stripe_account_enabled) {
+  if (!creator?.stripe_account_id) {
     return NextResponse.json(
       { error: "Creator payments not set up" },
       { status: 400 }
