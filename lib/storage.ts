@@ -20,20 +20,31 @@ const ALLOWED_MIMES = new Set([
   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ]);
 
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_PRODUCT_SIZE = 50 * 1024 * 1024; // 50MB (Supabase free tier limit)
+const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+const AVATAR_MIMES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
 export function validateUpload(
   mime: string,
   size: number
 ): { ok: boolean; error?: string } {
   if (!ALLOWED_MIMES.has(mime)) return { ok: false, error: "File type not allowed" };
-  if (size > MAX_FILE_SIZE) return { ok: false, error: "File too large (max 500MB)" };
+  if (size > MAX_PRODUCT_SIZE) return { ok: false, error: "File too large (max 50MB)" };
+  return { ok: true };
+}
+
+export function validateAvatarUpload(
+  mime: string,
+  size: number
+): { ok: boolean; error?: string } {
+  if (!AVATAR_MIMES.has(mime)) return { ok: false, error: "Avatar must be PNG, JPG, WebP or GIF" };
+  if (size > MAX_AVATAR_SIZE) return { ok: false, error: "Avatar too large (max 2MB)" };
   return { ok: true };
 }
 
 export async function getSignedUploadUrl(path: string): Promise<string> {
   const { data, error } = await supabaseAdmin.storage
-    .from("product-files")
+    .from("products")
     .createSignedUploadUrl(path);
   if (error || !data) throw new Error(error?.message ?? "Failed to create upload URL");
   return data.signedUrl;
@@ -44,7 +55,7 @@ export async function getSignedDownloadUrl(
   expiresIn = 86400
 ): Promise<string> {
   const { data, error } = await supabaseAdmin.storage
-    .from("product-files")
+    .from("products")
     .createSignedUrl(path, expiresIn);
   if (error || !data) throw new Error(error?.message ?? "Failed to create download URL");
   return data.signedUrl;

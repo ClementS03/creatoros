@@ -78,7 +78,7 @@ export function FileUpload({ onUploaded, existingFile }: Props) {
         <label className="flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-md cursor-pointer hover:bg-accent transition-colors">
           <Upload size={20} className="text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            {uploading ? "Uploading…" : "Click to upload your file (max 500MB)"}
+            {uploading ? "Uploading…" : "Click to upload your file (max 50MB)"}
           </span>
           <input
             type="file"
