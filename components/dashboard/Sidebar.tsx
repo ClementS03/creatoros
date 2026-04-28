@@ -29,7 +29,7 @@ export function Sidebar() {
 
   const linkClass = (href: string) => cn(
     "flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors",
-    pathname === href || pathname.startsWith(href + "/")
+    (href === "/dashboard" ? pathname === href : pathname === href || pathname.startsWith(href + "/"))
       ? "bg-primary text-primary-foreground"
       : "text-muted-foreground hover:bg-accent hover:text-foreground"
   );
