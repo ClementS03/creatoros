@@ -32,21 +32,6 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {!creator?.stripe_account_id && (
-        <div className="p-4 border border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg text-sm">
-          <p className="font-medium text-yellow-800 dark:text-yellow-200">
-            Connect Stripe to start selling
-          </p>
-          <p className="text-yellow-700 dark:text-yellow-300 mt-1">
-            You need to connect a Stripe account to accept payments.
-          </p>
-          <form action="/api/stripe/connect" method="POST" className="mt-2">
-            <Button type="submit" size="sm">
-              Connect Stripe
-            </Button>
-          </form>
-        </div>
-      )}
 
       <AnalyticsSummary />
 

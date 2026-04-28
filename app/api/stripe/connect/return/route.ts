@@ -15,16 +15,5 @@ export async function GET(request: NextRequest) {
     .eq("id", user.id)
     .single();
 
-  if (creator?.stripe_account_id) {
-    const account = await stripe.accounts.retrieve(
-      creator.stripe_account_id as string
-    );
-    const enabled = account.charges_enabled && account.payouts_enabled;
-    await supabase
-      .from("creators")
-      .update({ stripe_account_enabled: enabled })
-      .eq("id", user.id);
-  }
-
-  return NextResponse.redirect(new URL("/dashboard/settings", request.url));
+  return NextResponse.redirect(new URL("/dashboard", request.url));
 }
