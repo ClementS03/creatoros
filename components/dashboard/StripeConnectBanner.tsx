@@ -6,16 +6,24 @@ import { Button } from "@/components/ui/button";
 export function StripeConnectBanner() {
   const [connecting, setConnecting] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (dismissed) return null;
 
   async function handleConnect() {
     setConnecting(true);
-    const res = await fetch("/api/stripe/connect", { method: "POST" });
-    if (res.ok) {
-      const { url } = await res.json() as { url: string };
-      window.location.href = url;
-    } else {
+    setError(null);
+    try {
+      const res = await fetch("/api/stripe/connect", { method: "POST" });
+      const data = await res.json() as { url?: string; error?: string };
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error ?? "Failed to connect Stripe. Check console.");
+        setConnecting(false);
+      }
+    } catch {
+      setError("Network error. Try again.");
       setConnecting(false);
     }
   }
@@ -25,6 +33,7 @@ export function StripeConnectBanner() {
       <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 shrink-0" />
       <p className="flex-1 text-amber-800 dark:text-amber-300">
         <strong>Stripe not connected</strong> — You can&apos;t receive payments yet.
+        {error && <span className="ml-2 text-red-600 dark:text-red-400 text-xs">({error})</span>}
       </p>
       <Button
         size="sm"
