@@ -5,11 +5,11 @@ import { Check, ExternalLink } from "lucide-react";
 const bundleFeatures = [
   "Everything in CreatorOS Pro",
   "0% transaction fees",
-  "Unlimited products, courses & members",
-  "Auto-invoice when a coaching session is sold",
-  "Client CRM sync — coaching clients appear in FreelanceOS",
+  "Unlimited products",
   "Revenue widget in your FreelanceOS dashboard",
   "One bill instead of two",
+  "Auto-invoice on coaching sale (coming soon)",
+  "CRM sync with FreelanceOS (coming soon)",
 ];
 
 export function FreelanceBundle() {
