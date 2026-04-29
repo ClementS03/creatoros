@@ -22,7 +22,33 @@ export type Creator = {
   stripe_subscription_id: string | null;
   trial_ends_at: string | null;
   freelanceos_user_id: string | null;
+  resend_domain_id: string | null;
+  custom_send_domain: string | null;
+  send_domain_verified: boolean;
   created_at: string;
+};
+
+export type Subscriber = {
+  id: string;
+  creator_id: string;
+  email: string;
+  name: string | null;
+  source: "lead_magnet" | "purchase" | "newsletter";
+  product_id: string | null;
+  unsubscribe_token: string;
+  subscribed_at: string;
+  unsubscribed_at: string | null;
+};
+
+export type Broadcast = {
+  id: string;
+  creator_id: string;
+  subject: string;
+  body: string;
+  segment: "all" | "lead_magnet" | "purchase" | "newsletter" | null;
+  product_id: string | null;
+  recipient_count: number;
+  sent_at: string;
 };
 
 export type ProductType = "digital";
@@ -38,6 +64,11 @@ export type ProductFile = {
   created_at: string;
 };
 
+export type WelcomeEmail = {
+  subject: string;
+  body: string;
+};
+
 export type Product = {
   id: string;
   creator_id: string;
@@ -48,6 +79,8 @@ export type Product = {
   type: ProductType;
   cover_image_url: string | null;
   compare_at_price: number | null;
+  is_lead_magnet: boolean;
+  welcome_email: WelcomeEmail | null;
   file_path: string | null;
   file_name: string | null;
   file_size: number | null;
