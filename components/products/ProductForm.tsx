@@ -76,6 +76,8 @@ export function ProductForm({ product }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!description.trim()) { setError("Description is required."); return; }
+    if (files.length === 0) { setError("At least one file is required."); return; }
     setSaving(true);
     setError(null);
 
@@ -116,7 +118,7 @@ export function ProductForm({ product }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
       <div className="space-y-2">
-        <Label htmlFor="name">Product name *</Label>
+        <Label htmlFor="name">Product name <span className="text-destructive">*</span></Label>
         <Input
           id="name"
           value={name}
@@ -126,7 +128,7 @@ export function ProductForm({ product }: Props) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="desc">Description</Label>
+        <Label htmlFor="desc">Description <span className="text-destructive">*</span></Label>
         <textarea
           id="desc"
           className="w-full min-h-[80px] rounded-md border bg-background px-3 py-2 text-sm"
@@ -167,7 +169,7 @@ export function ProductForm({ product }: Props) {
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label htmlFor="price">Price (USD)</Label>
+            <Label htmlFor="price">Price (USD) <span className="text-destructive">*</span></Label>
             <Input
               id="price"
               type="number"
@@ -220,7 +222,7 @@ export function ProductForm({ product }: Props) {
 
       {/* Files */}
       <div className="space-y-2">
-        <Label>Files <span className="text-muted-foreground font-normal">({files.length} uploaded)</span></Label>
+        <Label>Files <span className="text-destructive">*</span> <span className="text-muted-foreground font-normal">({files.length} uploaded)</span></Label>
 
         {/* Uploaded files list */}
         {files.map((f, i) => (
@@ -254,6 +256,7 @@ export function ProductForm({ product }: Props) {
         />
         <span className="text-sm">Publish on storefront</span>
       </label>
+      <p className="text-xs text-muted-foreground"><span className="text-destructive">*</span> Required fields</p>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-2">
         <Button type="submit" disabled={saving}>
