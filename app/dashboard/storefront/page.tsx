@@ -50,7 +50,11 @@ export default function StorefrontSettingsPage() {
 
   if (!creator) return <div className="text-sm text-muted-foreground">Loading…</div>;
 
-  const storefrontUrl = `https://${creator.username}.creatoroshq.com`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const isLocalhost = new URL(appUrl).hostname === "localhost";
+  const storefrontUrl = isLocalhost
+    ? `${appUrl}/${creator.username}`
+    : `${new URL(appUrl).protocol}//${creator.username}.${new URL(appUrl).hostname}`;
 
   return (
     <div className="space-y-6 max-w-xl">
