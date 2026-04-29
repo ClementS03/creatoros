@@ -72,6 +72,16 @@ export async function POST(request: NextRequest) {
       metadata: { amount: session.amount_total, order_id: order?.id },
     });
 
+    if (order) {
+      await supabaseAdmin.from("subscribers").upsert({
+        creator_id: creatorId,
+        email: buyerEmail,
+        name: (session.customer_details?.name as string | null | undefined) ?? "",
+        source: "purchase",
+        product_id: productId,
+      }, { onConflict: "creator_id,email", ignoreDuplicates: true });
+    }
+
     const productFiles = (product as unknown as { product_files?: { id: string; file_name: string; sort_order: number }[] }).product_files ?? [];
     const hasFiles = productFiles.length > 0 || product.file_path;
 

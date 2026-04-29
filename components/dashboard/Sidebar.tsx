@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Package, BarChart2, Store,
-  CreditCard, User, PanelLeft, LogOut,
+  CreditCard, User, PanelLeft, LogOut, Users, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -13,12 +13,14 @@ import { createSupabaseBrowser } from "@/lib/supabase-client";
 const nav = [
   { href: "/dashboard",                  label: "Overview",   icon: LayoutDashboard, exact: true },
   { href: "/dashboard/products",         label: "Products",   icon: Package },
+  { href: "/dashboard/audience",         label: "Audience",   icon: Users },
   { href: "/dashboard/storefront",       label: "Storefront", icon: Store },
   { href: "/dashboard/analytics",        label: "Analytics",  icon: BarChart2 },
 ];
 
 const settingsNav = [
   { href: "/dashboard/settings/billing", label: "Billing",    icon: CreditCard },
+  { href: "/dashboard/settings/email",   label: "Email",      icon: Mail },
   { href: "/dashboard/settings/account", label: "Account",    icon: User },
 ];
 

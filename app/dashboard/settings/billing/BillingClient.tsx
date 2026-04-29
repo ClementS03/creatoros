@@ -111,19 +111,23 @@ export function BillingClient({ plan, hasSubscription, stripeStatus }: Props) {
               <p className="text-sm text-destructive">{connectError}</p>
             )}
 
-            {/* Disconnect confirm inline */}
+            {/* Disconnect / Start over confirm inline */}
             {confirmDisconnect ? (
               <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
-                <p className="text-sm font-medium">Disconnect Stripe account?</p>
+                <p className="text-sm font-medium">
+                  {fullyEnabled ? "Disconnect Stripe account?" : "Cancel Stripe setup?"}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  You won't be able to receive payments until you reconnect. Existing orders are not affected.
+                  {fullyEnabled
+                    ? "You won't be able to receive payments until you reconnect. Existing orders are not affected."
+                    : "The incomplete Stripe account will be removed. You can start a new connection at any time."}
                 </p>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => setConfirmDisconnect(false)}>
                     Cancel
                   </Button>
                   <Button size="sm" variant="destructive" onClick={handleDisconnect} disabled={disconnecting}>
-                    {disconnecting ? "Disconnecting…" : "Yes, disconnect"}
+                    {disconnecting ? "Removing…" : fullyEnabled ? "Yes, disconnect" : "Yes, start over"}
                   </Button>
                 </div>
               </div>
@@ -135,7 +139,7 @@ export function BillingClient({ plan, hasSubscription, stripeStatus }: Props) {
                   </Button>
                 )}
                 <Button size="sm" variant="outline" onClick={() => setConfirmDisconnect(true)} disabled={disconnecting}>
-                  Disconnect
+                  {fullyEnabled ? "Disconnect" : "Start over"}
                 </Button>
               </div>
             )}
