@@ -44,6 +44,7 @@ export async function PATCH(
   const body = await request.json() as Record<string, unknown>;
   const allowedFields = [
     "name", "description", "price", "currency",
+    "cover_image_url", "compare_at_price",
     "file_path", "file_name", "file_size", "file_mime",
     "download_limit", "is_published",
   ];

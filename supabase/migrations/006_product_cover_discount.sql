@@ -1,0 +1,2 @@
+ALTER TABLE products ADD COLUMN IF NOT EXISTS cover_image_url TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS compare_at_price INTEGER;

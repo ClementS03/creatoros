@@ -46,6 +46,8 @@ export type Product = {
   price: number;
   currency: string;
   type: ProductType;
+  cover_image_url: string | null;
+  compare_at_price: number | null;
   file_path: string | null;
   file_name: string | null;
   file_size: number | null;

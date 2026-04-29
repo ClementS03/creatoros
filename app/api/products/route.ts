@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json() as Record<string, unknown>;
   const allowedFields = [
     "name", "description", "price", "currency", "type",
+    "cover_image_url", "compare_at_price",
     "file_path", "file_name", "file_size", "file_mime",
     "download_limit", "is_published",
   ];

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "./FileUpload";
-import { File, X, Plus } from "lucide-react";
+import { File, X, ImageIcon } from "lucide-react";
+import Image from "next/image";
 import type { Product } from "@/types";
 
 type UploadResult = { path: string; name: string; size: number; mime: string };
@@ -17,6 +18,11 @@ export function ProductForm({ product }: Props) {
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [price, setPrice] = useState(product ? (product.price / 100).toString() : "");
+  const [compareAtPrice, setCompareAtPrice] = useState(
+    product?.compare_at_price ? (product.compare_at_price / 100).toString() : ""
+  );
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(product?.cover_image_url ?? null);
+  const [coverUploading, setCoverUploading] = useState(false);
   const [published, setPublished] = useState(product?.is_published ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +51,24 @@ export function ProductForm({ product }: Props) {
     setFiles(prev => prev.filter((_, i) => i !== index));
   }
 
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverUploading(true);
+    const res = await fetch("/api/upload/cover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mime: file.type, size: file.size, filename: file.name }),
+    });
+    if (!res.ok) { setCoverUploading(false); return; }
+    const { signedUrl, path } = await res.json() as { signedUrl: string; path: string };
+    await fetch(signedUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+    // Construct public URL
+    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${path}`;
+    setCoverImageUrl(publicUrl);
+    setCoverUploading(false);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -54,6 +78,8 @@ export function ProductForm({ product }: Props) {
       name,
       description,
       price: Math.round(parseFloat(price || "0") * 100),
+      compare_at_price: compareAtPrice ? Math.round(parseFloat(compareAtPrice) * 100) : null,
+      cover_image_url: coverImageUrl,
       currency: "usd",
       type: "digital" as const,
       is_published: published,
@@ -101,17 +127,57 @@ export function ProductForm({ product }: Props) {
           placeholder="What's included?"
         />
       </div>
+      {/* Cover image */}
       <div className="space-y-2">
-        <Label htmlFor="price">Price (USD)</Label>
-        <Input
-          id="price"
-          type="number"
-          min="0"
-          step="0.01"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="0 for free"
-        />
+        <Label>Cover image <span className="text-muted-foreground font-normal text-xs">(optional, max 5MB)</span></Label>
+        {coverImageUrl ? (
+          <div className="relative w-full h-40 rounded-lg overflow-hidden border group">
+            <Image src={coverImageUrl} alt="Cover" fill className="object-cover" />
+            <button
+              type="button"
+              onClick={() => setCoverImageUrl(null)}
+              className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent transition-colors">
+            <ImageIcon size={20} className="text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {coverUploading ? "Uploading…" : "Click to upload cover (PNG, JPG, WebP)"}
+            </span>
+            <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverUpload} disabled={coverUploading} />
+          </label>
+        )}
+      </div>
+
+      {/* Price */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label htmlFor="price">Price (USD)</Label>
+          <Input
+            id="price"
+            type="number"
+            min="0"
+            step="0.01"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="0 for free"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="compare">Compare at price <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
+          <Input
+            id="compare"
+            type="number"
+            min="0"
+            step="0.01"
+            value={compareAtPrice}
+            onChange={(e) => setCompareAtPrice(e.target.value)}
+            placeholder="Original price"
+          />
+        </div>
       </div>
 
       {/* Files */}

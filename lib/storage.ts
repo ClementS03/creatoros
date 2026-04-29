@@ -22,7 +22,9 @@ const ALLOWED_MIMES = new Set([
 
 const MAX_PRODUCT_SIZE = 50 * 1024 * 1024; // 50MB (Supabase free tier limit)
 const MAX_AVATAR_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_COVER_SIZE = 5 * 1024 * 1024; // 5MB
 const AVATAR_MIMES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+const COVER_MIMES = new Set(["image/png", "image/jpeg", "image/webp"]);
 
 export function validateUpload(
   mime: string,
@@ -40,6 +42,25 @@ export function validateAvatarUpload(
   if (!AVATAR_MIMES.has(mime)) return { ok: false, error: "Avatar must be PNG, JPG, WebP or GIF" };
   if (size > MAX_AVATAR_SIZE) return { ok: false, error: "Avatar too large (max 2MB)" };
   return { ok: true };
+}
+
+export function validateCoverUpload(mime: string, size: number): { ok: boolean; error?: string } {
+  if (!COVER_MIMES.has(mime)) return { ok: false, error: "Cover must be PNG, JPG or WebP" };
+  if (size > MAX_COVER_SIZE) return { ok: false, error: "Cover too large (max 5MB)" };
+  return { ok: true };
+}
+
+export async function getCoverUploadUrl(path: string): Promise<string> {
+  const { data, error } = await supabaseAdmin.storage
+    .from("avatars")
+    .createSignedUploadUrl(path);
+  if (error || !data) throw new Error(error?.message ?? "Failed to create upload URL");
+  return data.signedUrl;
+}
+
+export function getCoverPublicUrl(path: string): string {
+  const { data } = supabaseAdmin.storage.from("avatars").getPublicUrl(path);
+  return data.publicUrl;
 }
 
 export async function getSignedUploadUrl(path: string): Promise<string> {
