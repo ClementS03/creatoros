@@ -36,7 +36,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (patch.username) {
-    const username = (patch.username as string).toLowerCase().replace(/[^a-z0-9]/g, "");
+    const username = (patch.username as string).toLowerCase().replace(/[^a-z0-9_-]/g, "").replace(/^[-_]+|[-_]+$/g, "");
     if (username.length < 3) {
       return NextResponse.json({ error: "Username too short" }, { status: 400 });
     }
