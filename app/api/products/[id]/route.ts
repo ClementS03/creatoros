@@ -45,6 +45,7 @@ export async function PATCH(
   const allowedFields = [
     "name", "description", "price", "currency",
     "cover_image_url", "compare_at_price",
+    "is_lead_magnet", "welcome_email",
     "file_path", "file_name", "file_size", "file_mime",
     "download_limit", "is_published",
   ];

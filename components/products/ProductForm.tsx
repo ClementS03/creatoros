@@ -26,6 +26,13 @@ export function ProductForm({ product }: Props) {
     if (!product?.compare_at_price || product.compare_at_price <= product.price) return "";
     return Math.round((1 - product.price / product.compare_at_price) * 100).toString();
   });
+  const [isLeadMagnet, setIsLeadMagnet] = useState(product?.is_lead_magnet ?? false);
+  const [welcomeSubject, setWelcomeSubject] = useState(
+    (product?.welcome_email as { subject?: string } | null)?.subject ?? ""
+  );
+  const [welcomeBody, setWelcomeBody] = useState(
+    (product?.welcome_email as { body?: string } | null)?.body ?? ""
+  );
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(product?.cover_image_url ?? null);
   const [coverUploading, setCoverUploading] = useState(false);
   const [published, setPublished] = useState(product?.is_published ?? false);
@@ -87,12 +94,16 @@ export function ProductForm({ product }: Props) {
     const body = {
       name,
       description,
-      price: Math.round(salePrice * 100),
-      compare_at_price: pct > 0 ? Math.round(reg * 100) : null,
+      price: isLeadMagnet ? 0 : Math.round(salePrice * 100),
+      compare_at_price: isLeadMagnet ? null : (pct > 0 ? Math.round(reg * 100) : null),
       cover_image_url: coverImageUrl,
       currency: "usd",
       type: "digital" as const,
       is_published: published,
+      is_lead_magnet: isLeadMagnet,
+      welcome_email: isLeadMagnet
+        ? { subject: welcomeSubject.trim(), body: welcomeBody.trim() }
+        : null,
       files: files.map(f => ({ path: f.path, name: f.name, size: f.size, mime: f.mime })),
     };
 
@@ -176,8 +187,52 @@ export function ProductForm({ product }: Props) {
         </div>
       </div>
 
+      {/* Lead magnet toggle */}
+      <label className="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
+        <input
+          type="checkbox"
+          checked={isLeadMagnet}
+          onChange={e => setIsLeadMagnet(e.target.checked)}
+          className="mt-0.5 rounded"
+        />
+        <div>
+          <p className="text-sm font-medium">This is a lead magnet (free download)</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Visitors enter their name + email to get the download link. No payment required.
+          </p>
+        </div>
+      </label>
+
+      {isLeadMagnet && (
+        <div className="space-y-3 rounded-lg border p-4 bg-muted/20">
+          <p className="text-sm font-medium">Welcome email <span className="text-muted-foreground font-normal">(sent after signup)</span></p>
+          <div className="space-y-1.5">
+            <Label htmlFor="wm-subject">Subject</Label>
+            <Input
+              id="wm-subject"
+              value={welcomeSubject}
+              onChange={e => setWelcomeSubject(e.target.value)}
+              placeholder={`Here's your free ${name || "product"}!`}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="wm-body">Message</Label>
+            <textarea
+              id="wm-body"
+              className="w-full min-h-[100px] rounded-md border bg-background px-3 py-2 text-sm"
+              value={welcomeBody}
+              onChange={e => setWelcomeBody(e.target.value)}
+              placeholder={`Hi {{name}},\n\nHere's your download link: {{download_link}}\n\nEnjoy!`}
+            />
+            <p className="text-xs text-muted-foreground">
+              Variables: <code className="bg-muted px-1 rounded">{"{{name}}"}</code> and <code className="bg-muted px-1 rounded">{"{{download_link}}"}</code>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Price */}
-      <div className="space-y-3">
+      {!isLeadMagnet && <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label htmlFor="price">Price (USD) <span className="text-destructive">*</span></Label>
@@ -229,7 +284,7 @@ export function ProductForm({ product }: Props) {
             </div>
           );
         })()}
-      </div>
+      </div>}
 
       {/* Files */}
       <div className="space-y-2">

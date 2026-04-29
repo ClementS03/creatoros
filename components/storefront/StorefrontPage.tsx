@@ -29,7 +29,7 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
 
 type Props = {
   creator: Pick<Creator, "full_name" | "username" | "bio" | "avatar_url" | "brand_color" | "social_links">;
-  products: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type" | "cover_image_url" | "compare_at_price">[];
+  products: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type" | "cover_image_url" | "compare_at_price" | "is_lead_magnet">[];
 };
 
 export function StorefrontPage({ creator, products }: Props) {
