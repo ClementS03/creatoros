@@ -170,3 +170,124 @@ export async function sendWelcomeEmail({
     html,
   });
 }
+
+export function interpolate(template: string, vars: Record<string, string>): string {
+  return Object.entries(vars).reduce(
+    (str, [key, val]) => str.replace(new RegExp(`\{\{${key}\}\}`, "g"), val),
+    template
+  );
+}
+
+export function wrapEmailBody(body: string, fromName: string): string {
+  const lines = body
+    .split("\n")
+    .map(line => `<p style="margin:0 0 12px 0;font-size:15px;color:#374151;line-height:1.6;">${line}</p>`)
+    .join("");
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+        <tr><td align="center" style="padding-bottom:32px;">
+          <span style="font-size:18px;font-weight:700;color:#09090b;">${fromName}</span>
+        </td></tr>
+        <tr><td style="background-color:#ffffff;border-radius:12px;border:1px solid #e4e4e7;padding:40px 36px;">
+          ${lines}
+        </td></tr>
+        <tr><td align="center" style="padding-top:24px;">
+          <p style="margin:0;font-size:12px;color:#a1a1aa;">Powered by CreatorOS</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+export async function sendLeadMagnetEmail({
+  to,
+  name,
+  productName,
+  downloadUrl,
+  welcomeEmail,
+  fromName,
+  fromEmail,
+  replyTo,
+  unsubscribeUrl,
+}: {
+  to: string;
+  name: string;
+  productName: string;
+  downloadUrl: string;
+  welcomeEmail: { subject: string; body: string } | null;
+  fromName: string;
+  fromEmail: string;
+  replyTo: string;
+  unsubscribeUrl: string;
+}) {
+  const subject = welcomeEmail?.subject?.trim()
+    ? interpolate(welcomeEmail.subject, { name })
+    : `Here's your free ${productName}!`;
+
+  let rawBody = welcomeEmail?.body?.trim()
+    ? welcomeEmail.body
+    : `Hi {{name}},\n\nHere's your download link: {{download_link}}\n\nEnjoy!`;
+
+  rawBody = interpolate(rawBody, {
+    name,
+    download_link: `<a href="${downloadUrl}" style="color:#7c3aed;font-weight:600;">Download now →</a>`,
+  });
+
+  if (!rawBody.includes(downloadUrl)) {
+    rawBody += `\n\n<a href="${downloadUrl}" style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Download now →</a>`;
+  }
+
+  rawBody += `\n\n<a href="${unsubscribeUrl}" style="font-size:11px;color:#a1a1aa;">Unsubscribe</a>`;
+
+  await resend.emails.send({
+    from: `${fromName} <${fromEmail}>`,
+    to,
+    reply_to: replyTo,
+    subject,
+    html: wrapEmailBody(rawBody, fromName),
+  });
+}
+
+export async function sendBroadcastEmail({
+  recipients,
+  subject,
+  body,
+  fromName,
+  fromEmail,
+  replyTo,
+  appUrl,
+}: {
+  recipients: { email: string; name: string | null; unsubscribeToken: string }[];
+  subject: string;
+  body: string;
+  fromName: string;
+  fromEmail: string;
+  replyTo: string;
+  appUrl: string;
+}) {
+  const emails = recipients.map(r => {
+    const personalizedBody =
+      interpolate(body, { name: r.name ?? r.email }) +
+      `\n\n<a href="${appUrl}/unsubscribe?token=${r.unsubscribeToken}" style="font-size:11px;color:#a1a1aa;">Unsubscribe</a>`;
+    return {
+      from: `${fromName} <${fromEmail}>`,
+      to: r.email,
+      reply_to: replyTo,
+      subject,
+      html: wrapEmailBody(personalizedBody, fromName),
+    };
+  });
+
+  const chunks: (typeof emails)[] = [];
+  for (let i = 0; i < emails.length; i += 100) chunks.push(emails.slice(i, i + 100));
+  for (const chunk of chunks) {
+    await resend.batch.send(chunk);
+  }
+}
