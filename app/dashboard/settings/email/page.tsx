@@ -8,6 +8,9 @@ import type { Creator } from "@/types";
 
 export default function EmailSettingsPage() {
   const [creator, setCreator] = useState<Creator | null>(null);
+  const [fromName, setFromName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
   const [domain, setDomain] = useState("");
   const [records, setRecords] = useState<{ type: string; name: string; value: string }[] | null>(null);
   const [configuring, setConfiguring] = useState(false);
@@ -15,8 +18,25 @@ export default function EmailSettingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/storefront").then(r => r.json()).then(setCreator);
+    fetch("/api/storefront").then(r => r.json()).then((c: Creator) => {
+      setCreator(c);
+      setFromName(c.full_name ?? "");
+    });
   }, []);
+
+  async function handleSaveName(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingName(true);
+    setNameSaved(false);
+    await fetch("/api/storefront", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ full_name: fromName.trim() }),
+    });
+    setSavingName(false);
+    setNameSaved(true);
+    setTimeout(() => setNameSaved(false), 2000);
+  }
 
   async function handleConfigure() {
     setConfiguring(true);
@@ -66,27 +86,43 @@ export default function EmailSettingsPage() {
         <p className="text-sm text-muted-foreground mt-1">Configure how your emails are sent to subscribers.</p>
       </div>
 
-      <div className="rounded-xl border p-5 space-y-3">
+      <div className="rounded-xl border p-5 space-y-4">
         <h2 className="font-semibold">Sending identity</h2>
-        <div className="text-sm space-y-1">
-          <p><span className="text-muted-foreground">From name:</span> {creator.full_name ?? "Creator"}</p>
-          <p className="flex items-center gap-2">
-            <span className="text-muted-foreground">From address:</span>
-            {creator.send_domain_verified && creator.custom_send_domain ? creator.custom_send_domain : "hello@creatoroshq.com"}
-            {creator.send_domain_verified && (
-              <span className="inline-flex items-center gap-1 text-xs text-green-600">
-                <CheckCircle2 size={12} /> Verified
-              </span>
-            )}
-          </p>
-        </div>
+        <form onSubmit={handleSaveName} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="from-name">From name</Label>
+            <Input
+              id="from-name"
+              value={fromName}
+              onChange={e => setFromName(e.target.value)}
+              placeholder="Your name or brand"
+            />
+            <p className="text-xs text-muted-foreground">Shown as the sender name in emails to your subscribers.</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label>From address</Label>
+            <div className="flex items-center gap-2 h-9 px-3 rounded-md border bg-muted/30 text-sm text-muted-foreground">
+              {creator.send_domain_verified && creator.custom_send_domain
+                ? creator.custom_send_domain
+                : "hello@creatoroshq.com"}
+              {creator.send_domain_verified && (
+                <span className="inline-flex items-center gap-1 text-xs text-green-600 ml-auto">
+                  <CheckCircle2 size={12} /> Verified
+                </span>
+              )}
+            </div>
+          </div>
+          <Button type="submit" size="sm" disabled={savingName || !fromName.trim()}>
+            {savingName ? "Saving…" : nameSaved ? "Saved!" : "Save"}
+          </Button>
+        </form>
       </div>
 
       <div className="rounded-xl border p-5 space-y-4">
         <div>
-          <h2 className="font-semibold">Custom sending domain</h2>
+          <h2 className="font-semibold">Custom sending domain <span className="text-xs font-normal text-muted-foreground ml-1">(optional)</span></h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Send emails from your own domain (e.g. <code>hello@yoursite.com</code>).
+            By default, emails are sent from <code>hello@creatoroshq.com</code>. If you have your own domain, you can send from <code>hello@yourdomain.com</code> instead — better for branding and deliverability.
           </p>
         </div>
 
