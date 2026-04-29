@@ -16,7 +16,11 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await resend.domains.create({ name: domain.trim() });
   if (error || !data) {
-    return NextResponse.json({ error: (error as { message?: string } | null)?.message ?? "Failed to create domain" }, { status: 500 });
+    const msg = (error as { message?: string } | null)?.message ?? "Failed to create domain";
+    const hint = msg.toLowerCase().includes("restricted")
+      ? "Your Resend API key only allows sending emails. In the Resend dashboard, go to API Keys and create a new key with Full access, then update your RESEND_API_KEY environment variable."
+      : msg;
+    return NextResponse.json({ error: hint }, { status: 500 });
   }
 
   await supabase
