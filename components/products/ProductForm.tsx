@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "./FileUpload";
-import { File, X, ImageIcon } from "lucide-react";
+import { File, X, ImageIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import type { Product } from "@/types";
 
@@ -142,8 +142,11 @@ export function ProductForm({ product }: Props) {
             </button>
           </div>
         ) : (
-          <label className="flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-lg cursor-pointer hover:bg-accent transition-colors">
-            <ImageIcon size={20} className="text-muted-foreground" />
+          <label className={`flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-lg transition-colors ${coverUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-accent"}`}>
+            {coverUploading
+              ? <Loader2 size={20} className="text-primary animate-spin" />
+              : <ImageIcon size={20} className="text-muted-foreground" />
+            }
             <span className="text-sm text-muted-foreground">
               {coverUploading ? "Uploading…" : "Click to upload cover (PNG, JPG, WebP)"}
             </span>

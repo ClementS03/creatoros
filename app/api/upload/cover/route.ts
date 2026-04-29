@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
   const validation = validateCoverUpload(mime, size);
   if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
 
-  const ext = filename.split(".").pop() ?? "jpg";
+  const rawExt = filename.split(".").pop() ?? "jpg";
+  const ext = rawExt.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10) || "jpg";
   const path = `covers/${user.id}/${randomUUID()}.${ext}`;
   const signedUrl = await getCoverUploadUrl(path);
 

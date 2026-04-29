@@ -53,6 +53,13 @@ export async function PATCH(
     if (key in body) patch[key] = body[key];
   }
 
+  if (patch.price !== undefined && (typeof patch.price !== "number" || patch.price < 0)) {
+    return NextResponse.json({ error: "Invalid price" }, { status: 400 });
+  }
+  if (patch.compare_at_price !== undefined && patch.compare_at_price !== null && (typeof patch.compare_at_price !== "number" || (patch.compare_at_price as number) < 0)) {
+    return NextResponse.json({ error: "Invalid compare_at_price" }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from("products")
     .update(patch)

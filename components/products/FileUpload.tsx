@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, File, X } from "lucide-react";
+import { Upload, File, X, Loader2 } from "lucide-react";
 
 type UploadResult = {
   path: string;
@@ -75,8 +75,11 @@ export function FileUpload({ onUploaded, existingFile }: Props) {
           </Button>
         </div>
       ) : (
-        <label className="flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-md cursor-pointer hover:bg-accent transition-colors">
-          <Upload size={20} className="text-muted-foreground" />
+        <label className={`flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-md transition-colors ${uploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-accent"}`}>
+          {uploading
+            ? <Loader2 size={20} className="text-primary animate-spin" />
+            : <Upload size={20} className="text-muted-foreground" />
+          }
           <span className="text-sm text-muted-foreground">
             {uploading ? "Uploading…" : "Click to upload your file (max 50MB)"}
           </span>

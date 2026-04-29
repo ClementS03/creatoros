@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExternalLink } from "lucide-react";
 import type { Creator } from "@/types";
 
 export default function StorefrontSettingsPage() {
@@ -49,20 +50,24 @@ export default function StorefrontSettingsPage() {
 
   if (!creator) return <div className="text-sm text-muted-foreground">Loading…</div>;
 
+  const storefrontUrl = `https://${creator.username}.creatoroshq.com`;
+
   return (
     <div className="space-y-6 max-w-xl">
-      <h1 className="text-2xl font-bold">Storefront</h1>
-      <p className="text-sm text-muted-foreground">
-        Your storefront:{" "}
-        <a
-          href={`https://${username || creator.username}.creatoroshq.com`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline font-mono text-primary"
-        >
-          {username || creator.username}.creatoroshq.com
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Storefront</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            <span className="font-mono">{creator.username}.creatoroshq.com</span>
+          </p>
+        </div>
+        <a href={storefrontUrl} target="_blank" rel="noopener noreferrer">
+          <Button variant="outline" size="sm" className="gap-1.5 shrink-0">
+            <ExternalLink size={14} />
+            View storefront
+          </Button>
         </a>
-      </p>
+      </div>
       <form onSubmit={handleSave} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="username">Username</Label>

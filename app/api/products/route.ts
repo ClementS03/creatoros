@@ -51,6 +51,9 @@ export async function POST(request: NextRequest) {
   if (!insert.name || typeof insert.name !== "string" || insert.name.trim().length === 0) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
+  if (insert.price !== undefined && (typeof insert.price !== "number" || (insert.price as number) < 0)) {
+    return NextResponse.json({ error: "Invalid price" }, { status: 400 });
+  }
 
   const { data, error } = await supabase.from("products").insert(insert).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

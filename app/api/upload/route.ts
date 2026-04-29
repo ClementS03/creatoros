@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
 
-  const ext = filename.split(".").pop() ?? "bin";
+  const rawExt = filename.split(".").pop() ?? "bin";
+  const ext = rawExt.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10) || "bin";
   const path = `${user.id}/${randomUUID()}.${ext}`;
   const signedUrl = await getSignedUploadUrl(path);
 
