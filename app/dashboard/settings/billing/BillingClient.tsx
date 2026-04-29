@@ -21,6 +21,8 @@ export function BillingClient({ plan, hasSubscription, stripeStatus }: Props) {
   const [loading, setLoading] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   async function handleAction(action: "subscribe" | "portal") {
     setLoading(true);
@@ -35,19 +37,20 @@ export function BillingClient({ plan, hasSubscription, stripeStatus }: Props) {
 
   async function handleConnect() {
     setConnecting(true);
+    setConnectError(null);
     const res = await fetch("/api/stripe/connect", { method: "POST" });
     const data = await res.json() as { url?: string; error?: string };
     if (res.ok && data.url) {
       window.location.href = data.url;
     } else {
-      alert(data.error ?? "Failed to connect Stripe");
+      setConnectError(data.error ?? "Failed to connect Stripe");
       setConnecting(false);
     }
   }
 
   async function handleDisconnect() {
-    if (!confirm("Disconnect your Stripe account? You won't be able to receive payments until you reconnect.")) return;
     setDisconnecting(true);
+    setConfirmDisconnect(false);
     await fetch("/api/stripe/connect", { method: "DELETE" });
     window.location.reload();
   }
@@ -103,22 +106,48 @@ export function BillingClient({ plan, hasSubscription, stripeStatus }: Props) {
                 Your Stripe account is connected but not fully verified yet. Complete the onboarding in Stripe to start receiving payments.
               </p>
             )}
-            <div className="flex gap-2">
-              {!fullyEnabled && (
-                <Button size="sm" onClick={handleConnect} disabled={connecting}>
-                  {connecting ? "Redirecting…" : "Complete Stripe setup"}
+
+            {connectError && (
+              <p className="text-sm text-destructive">{connectError}</p>
+            )}
+
+            {/* Disconnect confirm inline */}
+            {confirmDisconnect ? (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
+                <p className="text-sm font-medium">Disconnect Stripe account?</p>
+                <p className="text-xs text-muted-foreground">
+                  You won't be able to receive payments until you reconnect. Existing orders are not affected.
+                </p>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setConfirmDisconnect(false)}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={handleDisconnect} disabled={disconnecting}>
+                    {disconnecting ? "Disconnecting…" : "Yes, disconnect"}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                {!fullyEnabled && (
+                  <Button size="sm" onClick={handleConnect} disabled={connecting}>
+                    {connecting ? "Redirecting…" : "Complete Stripe setup"}
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={() => setConfirmDisconnect(true)} disabled={disconnecting}>
+                  Disconnect
                 </Button>
-              )}
-              <Button size="sm" variant="outline" onClick={handleDisconnect} disabled={disconnecting}>
-                {disconnecting ? "Disconnecting…" : "Disconnect"}
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
               Connect your Stripe account to start receiving payments from your customers.
             </p>
+            {connectError && (
+              <p className="text-sm text-destructive">{connectError}</p>
+            )}
             <Button size="sm" onClick={handleConnect} disabled={connecting}>
               {connecting ? "Redirecting…" : "Connect Stripe"}
             </Button>
