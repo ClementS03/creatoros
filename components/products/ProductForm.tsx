@@ -17,10 +17,15 @@ export function ProductForm({ product }: Props) {
   const router = useRouter();
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
-  const [price, setPrice] = useState(product ? (product.price / 100).toString() : "");
-  const [compareAtPrice, setCompareAtPrice] = useState(
-    product?.compare_at_price ? (product.compare_at_price / 100).toString() : ""
-  );
+  const [regularPrice, setRegularPrice] = useState(() => {
+    if (!product) return "";
+    const base = product.compare_at_price ?? product.price;
+    return (base / 100).toString();
+  });
+  const [discountPct, setDiscountPct] = useState(() => {
+    if (!product?.compare_at_price || product.compare_at_price <= product.price) return "";
+    return Math.round((1 - product.price / product.compare_at_price) * 100).toString();
+  });
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(product?.cover_image_url ?? null);
   const [coverUploading, setCoverUploading] = useState(false);
   const [published, setPublished] = useState(product?.is_published ?? false);
@@ -74,11 +79,14 @@ export function ProductForm({ product }: Props) {
     setSaving(true);
     setError(null);
 
+    const reg = parseFloat(regularPrice || "0");
+    const pct = parseFloat(discountPct || "0");
+    const salePrice = pct > 0 ? reg * (1 - pct / 100) : reg;
     const body = {
       name,
       description,
-      price: Math.round(parseFloat(price || "0") * 100),
-      compare_at_price: compareAtPrice ? Math.round(parseFloat(compareAtPrice) * 100) : null,
+      price: Math.round(salePrice * 100),
+      compare_at_price: pct > 0 ? Math.round(reg * 100) : null,
       cover_image_url: coverImageUrl,
       currency: "usd",
       type: "digital" as const,
@@ -156,31 +164,58 @@ export function ProductForm({ product }: Props) {
       </div>
 
       {/* Price */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="price">Price (USD)</Label>
-          <Input
-            id="price"
-            type="number"
-            min="0"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="0 for free"
-          />
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="price">Price (USD)</Label>
+            <Input
+              id="price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={regularPrice}
+              onChange={(e) => setRegularPrice(e.target.value)}
+              placeholder="0 for free"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="discount">Discount <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
+            <div className="relative">
+              <Input
+                id="discount"
+                type="number"
+                min="0"
+                max="99"
+                step="1"
+                value={discountPct}
+                onChange={(e) => setDiscountPct(e.target.value)}
+                placeholder="0"
+                className="pr-7"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">%</span>
+            </div>
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="compare">Compare at price <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
-          <Input
-            id="compare"
-            type="number"
-            min="0"
-            step="0.01"
-            value={compareAtPrice}
-            onChange={(e) => setCompareAtPrice(e.target.value)}
-            placeholder="Original price"
-          />
-        </div>
+        {/* Live preview */}
+        {(() => {
+          const reg = parseFloat(regularPrice || "0");
+          const pct = parseFloat(discountPct || "0");
+          if (reg <= 0) return null;
+          const sale = pct > 0 ? reg * (1 - pct / 100) : reg;
+          return (
+            <div className="flex items-center gap-3 rounded-lg border bg-muted/30 px-4 py-2.5">
+              <span className="font-bold text-base">${sale.toFixed(2)}</span>
+              {pct > 0 && (
+                <>
+                  <span className="text-sm text-muted-foreground line-through">${reg.toFixed(2)}</span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                    -{Math.round(pct)}%
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Files */}
