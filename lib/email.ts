@@ -38,19 +38,135 @@ export async function sendWelcomeEmail({
   to: string;
   name: string;
 }) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://creatoroshq.com";
+  const displayName = name || "Creator";
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to CreatorOS</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+
+          <!-- Logo -->
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <span style="font-size:22px;font-weight:700;color:#09090b;letter-spacing:-0.5px;">
+                Creator<span style="color:#7c3aed;">OS</span>
+              </span>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background-color:#ffffff;border-radius:12px;border:1px solid #e4e4e7;padding:40px 36px;">
+
+              <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#09090b;line-height:1.3;">
+                Welcome, ${displayName}! 🎉
+              </p>
+              <p style="margin:0 0 28px 0;font-size:15px;color:#71717a;line-height:1.6;">
+                Your CreatorOS account is ready. Here's how to get started:
+              </p>
+
+              <!-- Checklist -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:28px;vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#7c3aed;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">1</span>
+                        </td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:#09090b;">Set up your storefront</p>
+                          <p style="margin:2px 0 0;font-size:13px;color:#71717a;">Choose your username and customize your public page.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:28px;vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#7c3aed;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">2</span>
+                        </td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:#09090b;">Connect Stripe</p>
+                          <p style="margin:2px 0 0;font-size:13px;color:#71717a;">Link your Stripe account to start receiving payments.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #f4f4f5;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:28px;vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#7c3aed;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">3</span>
+                        </td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:#09090b;">Upload your first product</p>
+                          <p style="margin:2px 0 0;font-size:13px;color:#71717a;">Add a digital product — template, ebook, preset, or anything else.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:28px;vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#7c3aed;border-radius:50%;text-align:center;line-height:20px;font-size:11px;color:#fff;font-weight:700;">4</span>
+                        </td>
+                        <td>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:#09090b;">Share your link</p>
+                          <p style="margin:2px 0 0;font-size:13px;color:#71717a;">Put your storefront URL in your bio and start selling.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <a href="${appUrl}/dashboard"
+                 style="display:block;text-align:center;background-color:#7c3aed;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:14px 24px;border-radius:8px;">
+                Go to my dashboard →
+              </a>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding-top:24px;">
+              <p style="margin:0;font-size:12px;color:#a1a1aa;">
+                CreatorOS · Sell your digital products, your way.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
   await resend.emails.send({
     from: "CreatorOS <hello@creatoroshq.com>",
     to,
-    subject: "Welcome to CreatorOS!",
-    html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
-        <h1 style="font-size: 24px;">Welcome, ${name || "Creator"}!</h1>
-        <p style="color: #666;">Your CreatorOS account is ready. Set up your storefront and start selling.</p>
-        <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
-           style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 16px;">
-          Go to dashboard
-        </a>
-      </div>
-    `,
+    subject: `Welcome to CreatorOS, ${displayName}!`,
+    html,
   });
 }

@@ -1,4 +1,5 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { sendWelcomeEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -8,7 +9,17 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createSupabaseServer();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+
+    // Send welcome email to brand-new users (created within last 60s)
+    const user = data?.user;
+    if (user?.email && user.created_at) {
+      const isNew = Date.now() - new Date(user.created_at).getTime() < 60_000;
+      if (isNew) {
+        const name = user.user_metadata?.full_name ?? user.user_metadata?.name ?? "";
+        sendWelcomeEmail({ to: user.email, name }).catch(() => null);
+      }
+    }
   }
 
   // Only allow relative paths to prevent open redirect
