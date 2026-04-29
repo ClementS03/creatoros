@@ -1,0 +1,3 @@
+ALTER TABLE products
+  ADD COLUMN IF NOT EXISTS is_lead_magnet BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS welcome_email JSONB;
