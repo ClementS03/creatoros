@@ -140,29 +140,40 @@ export function ProductForm({ product }: Props) {
       {/* Cover image */}
       <div className="space-y-2">
         <Label>Cover image <span className="text-muted-foreground font-normal text-xs">(optional, max 5MB)</span></Label>
-        {coverImageUrl ? (
-          <div className="relative w-full h-40 rounded-lg overflow-hidden border group">
-            <Image src={coverImageUrl} alt="Cover" fill className="object-cover" />
-            <button
-              type="button"
-              onClick={() => setCoverImageUrl(null)}
-              className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <X size={14} />
-            </button>
+        <div className="flex items-start gap-4">
+          {/* Thumbnail preview */}
+          <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
+            {coverImageUrl ? (
+              <Image src={coverImageUrl} alt="Cover" width={96} height={96} className="object-cover w-full h-full" />
+            ) : (
+              <ImageIcon size={24} className="text-muted-foreground" />
+            )}
           </div>
-        ) : (
-          <label className={`flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-lg transition-colors ${coverUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-accent"}`}>
-            {coverUploading
-              ? <Loader2 size={20} className="text-primary animate-spin" />
-              : <ImageIcon size={20} className="text-muted-foreground" />
-            }
-            <span className="text-sm text-muted-foreground">
-              {coverUploading ? "Uploading…" : "Click to upload cover (PNG, JPG, WebP)"}
-            </span>
-            <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverUpload} disabled={coverUploading} />
-          </label>
-        )}
+          {/* Upload / remove */}
+          <div className="flex-1 space-y-2">
+            {coverImageUrl ? (
+              <button
+                type="button"
+                onClick={() => setCoverImageUrl(null)}
+                className="flex items-center gap-1.5 text-sm text-destructive hover:underline"
+              >
+                <X size={13} /> Remove image
+              </button>
+            ) : (
+              <label className={`flex items-center gap-2 px-4 py-2.5 border-2 border-dashed rounded-lg text-sm transition-colors ${coverUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-accent"}`}>
+                {coverUploading
+                  ? <Loader2 size={15} className="text-primary animate-spin shrink-0" />
+                  : <ImageIcon size={15} className="text-muted-foreground shrink-0" />
+                }
+                <span className="text-muted-foreground">
+                  {coverUploading ? "Uploading…" : "Upload cover (PNG, JPG, WebP)"}
+                </span>
+                <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverUpload} disabled={coverUploading} />
+              </label>
+            )}
+            <p className="text-xs text-muted-foreground">Recommended: 1:1 square, min 400×400px</p>
+          </div>
+        </div>
       </div>
 
       {/* Price */}
