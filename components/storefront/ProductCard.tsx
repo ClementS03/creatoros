@@ -16,15 +16,15 @@ export function ProductCard({ product }: Props) {
   const discount = calcDiscount(product.price, product.compare_at_price);
 
   return (
-    <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow flex gap-4 p-4">
-      {/* Cover image — left side */}
-      <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
+    <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow flex">
+      {/* Cover image — left side, full height */}
+      <div className="shrink-0 w-28 self-stretch bg-muted flex items-center justify-center overflow-hidden">
         {product.cover_image_url ? (
           <Image
             src={product.cover_image_url}
             alt={product.name}
-            width={80}
-            height={80}
+            width={112}
+            height={200}
             className="object-cover w-full h-full"
           />
         ) : (
@@ -33,7 +33,7 @@ export function ProductCard({ product }: Props) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between gap-2">
+      <div className="flex-1 min-w-0 flex flex-col justify-between gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-base leading-snug truncate">{product.name}</h3>
           {discount !== null && (
