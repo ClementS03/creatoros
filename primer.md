@@ -1,22 +1,39 @@
 # Primer — CreatorOS
-_Dernière mise à jour : 2026-04-27_
+_Dernière mise à jour : 2026-04-29_
 
 ## État actuel
-Phase 1 MVP complet et pushé sur GitHub (ClementS03/creatoros). Tous les tests passent.
 
-## Blockers
-Infrastructure non configurée — 3 étapes manuelles à faire dans l'ordre :
-1. **Supabase** — nouveau projet, 4 migrations SQL, 2 storage buckets, auth redirect URLs
-2. **Stripe** — créer prix Pro ($19/mo), enregistrer webhook, copier les clés
-3. **Vercel** — déployer depuis GitHub, env vars, domaine + wildcard `*.creatoroshq.com`
+Phase 1 MVP complet, déployé, infrastructure entièrement configurée.
 
-## Next steps
-1. Clément crée le projet Supabase et partage les 3 clés
-2. Puis Stripe : prix Pro + webhook
-3. Puis Vercel : déploiement + env vars + domaine
+- Supabase ✅ — projet live, 4 migrations appliquées, storage configuré
+- Stripe ✅ — Connect Express fonctionnel, Pro price créé, webhook live
+- Google OAuth ✅ — projet Google séparé de FreelanceOS
+- Vercel ✅ — déployé, domaine creatoroshq.com + wildcard *.creatoroshq.com
 
-## Décisions récentes
-- Stack confirmée : Next.js 15 + Supabase + Stripe Connect + Resend + shadcn/ui
+## Bugs corrigés (session 2026-04-27/28)
+
+- `stripe_account_enabled` inexistant → remplacé par `stripe_account_id`
+- Création du creator record en lazy init dans le layout dashboard
+- Page edit produit corrigée
+- Sidebar collapsible ajoutée
+- Widget statut Stripe Connect dans la page billing
+
+## Blockers actuels
+
+Aucun. Prêt pour Phase 2.
+
+## Next steps (Phase 2)
+
+1. Courses — upload vidéo (Mux ou Cloudflare Stream), modules, lessons
+2. Coaching & booking — créneaux calendar, paiement Stripe à la réservation
+3. Email list — lead magnets, broadcasts Resend
+4. Custom domain — UI existe, DNS CNAME pas encore câblé
+5. Avatar upload UI — champ `creators.avatar_url` existe en DB, pas de formulaire
+
+## Décisions techniques
+
+- Stack : Next.js 15 + Supabase + Stripe Connect + Resend + shadcn/ui
 - Pas d'i18n — English only
-- Plan free : 8% commission, max 3 produits / Plan pro : 0%, illimité, $19/mo
-- Subdomain routing via middleware Next.js (`username.creatoroshq.com`)
+- Free : 8% commission, max 3 produits / Pro : 0%, illimité, $19/mo
+- Subdomain routing via middleware (`username.creatoroshq.com`)
+- Google OAuth : projet séparé de FreelanceOS (recommandé, pas de conflit)

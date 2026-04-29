@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   const { data: creator } = await supabase
     .from("creators")
-    .select("stripe_account_id, plan")
+    .select("stripe_account_id, plan, username")
     .eq("id", product.creator_id)
     .single();
 
@@ -62,7 +62,9 @@ export async function POST(request: NextRequest) {
       },
     },
     success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: appUrl,
+    cancel_url: creator.username
+      ? `${new URL(appUrl).protocol}//${creator.username}.${new URL(appUrl).hostname}`
+      : appUrl,
     metadata: {
       productId: product.id as string,
       creatorId: product.creator_id as string,

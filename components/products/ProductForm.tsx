@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileUpload } from "./FileUpload";
+import { File, X, Plus } from "lucide-react";
 import type { Product } from "@/types";
 
 type UploadResult = { path: string; name: string; size: number; mime: string };
@@ -15,22 +16,34 @@ export function ProductForm({ product }: Props) {
   const router = useRouter();
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
-  const [price, setPrice] = useState(
-    product ? (product.price / 100).toString() : ""
-  );
-  const [file, setFile] = useState<UploadResult | null>(
-    product?.file_path
-      ? {
-          path: product.file_path,
-          name: product.file_name ?? "",
-          size: product.file_size ?? 0,
-          mime: product.file_mime ?? "",
-        }
-      : null
-  );
+  const [price, setPrice] = useState(product ? (product.price / 100).toString() : "");
   const [published, setPublished] = useState(product?.is_published ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadKey, setUploadKey] = useState(0);
+
+  // Initialize files from product_files (new) or legacy file_path (old)
+  const [files, setFiles] = useState<UploadResult[]>(() => {
+    if (product?.product_files && product.product_files.length > 0) {
+      return product.product_files
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map(f => ({ path: f.file_path, name: f.file_name, size: f.file_size ?? 0, mime: f.file_mime ?? "" }));
+    }
+    if (product?.file_path) {
+      return [{ path: product.file_path, name: product.file_name ?? "", size: product.file_size ?? 0, mime: product.file_mime ?? "" }];
+    }
+    return [];
+  });
+
+  function handleFileUploaded(result: UploadResult) {
+    if (!result.path) return;
+    setFiles(prev => [...prev, result]);
+    setUploadKey(k => k + 1);
+  }
+
+  function removeFile(index: number) {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,11 +56,8 @@ export function ProductForm({ product }: Props) {
       price: Math.round(parseFloat(price || "0") * 100),
       currency: "usd",
       type: "digital" as const,
-      file_path: file?.path ?? null,
-      file_name: file?.name ?? null,
-      file_size: file?.size ?? null,
-      file_mime: file?.mime ?? null,
       is_published: published,
+      files: files.map(f => ({ path: f.path, name: f.name, size: f.size, mime: f.mime })),
     };
 
     const res = await fetch(
@@ -103,13 +113,34 @@ export function ProductForm({ product }: Props) {
           placeholder="0 for free"
         />
       </div>
+
+      {/* Files */}
       <div className="space-y-2">
-        <Label>Product file</Label>
-        <FileUpload
-          onUploaded={setFile}
-          existingFile={file ? { name: file.name } : null}
-        />
+        <Label>Files <span className="text-muted-foreground font-normal">({files.length} uploaded)</span></Label>
+
+        {/* Uploaded files list */}
+        {files.map((f, i) => (
+          <div key={i} className="flex items-center gap-2 p-3 border rounded-md bg-muted/30">
+            <File size={15} className="text-muted-foreground shrink-0" />
+            <span className="text-sm flex-1 truncate">{f.name}</span>
+            {f.size > 0 && (
+              <span className="text-xs text-muted-foreground shrink-0">
+                {(f.size / 1024 / 1024).toFixed(1)} MB
+              </span>
+            )}
+            <Button variant="ghost" size="icon" onClick={() => removeFile(i)} type="button" className="shrink-0 h-7 w-7">
+              <X size={13} />
+            </Button>
+          </div>
+        ))}
+
+        {/* Upload widget — always visible to add more */}
+        <FileUpload key={uploadKey} onUploaded={handleFileUploaded} existingFile={null} />
+        {files.length > 0 && (
+          <p className="text-xs text-muted-foreground">Upload another file above to add it to the product.</p>
+        )}
       </div>
+
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"

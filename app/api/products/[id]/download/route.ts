@@ -13,6 +13,7 @@ export async function GET(
 ) {
   const { id: productId } = await params;
   const orderId = request.nextUrl.searchParams.get("order");
+  const fileId  = request.nextUrl.searchParams.get("file");
 
   if (!orderId) {
     return NextResponse.json({ error: "Missing order" }, { status: 400 });
@@ -35,18 +36,34 @@ export async function GET(
     .eq("id", productId)
     .single();
 
-  if (!product?.file_path) {
-    return NextResponse.json({ error: "No file attached" }, { status: 404 });
+  if (!product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
   if (
     product.download_limit !== null &&
     (order.download_count as number) >= (product.download_limit as number)
   ) {
-    return NextResponse.json(
-      { error: "Download limit reached" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Download limit reached" }, { status: 403 });
+  }
+
+  let filePath: string;
+  let fileName: string;
+
+  if (fileId) {
+    const { data: pf } = await supabaseAdmin
+      .from("product_files")
+      .select("file_path, file_name")
+      .eq("id", fileId)
+      .eq("product_id", productId)
+      .single();
+    if (!pf) return NextResponse.json({ error: "File not found" }, { status: 404 });
+    filePath = pf.file_path as string;
+    fileName = pf.file_name as string;
+  } else {
+    if (!product.file_path) return NextResponse.json({ error: "No file attached" }, { status: 404 });
+    filePath = product.file_path as string;
+    fileName = product.file_name as string;
   }
 
   await supabaseAdmin
@@ -54,7 +71,6 @@ export async function GET(
     .update({ download_count: (order.download_count as number) + 1 })
     .eq("id", orderId);
 
-  const signedUrl = await getSignedDownloadUrl(product.file_path as string, 3600);
-
+  const signedUrl = await getSignedDownloadUrl(filePath, 3600);
   return NextResponse.redirect(signedUrl);
 }

@@ -27,6 +27,17 @@ export type Creator = {
 
 export type ProductType = "digital";
 
+export type ProductFile = {
+  id: string;
+  product_id: string;
+  file_path: string;
+  file_name: string;
+  file_size: number | null;
+  file_mime: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 export type Product = {
   id: string;
   creator_id: string;
@@ -43,6 +54,7 @@ export type Product = {
   is_published: boolean;
   is_active: boolean;
   created_at: string;
+  product_files?: ProductFile[];
 };
 
 export type Order = {

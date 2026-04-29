@@ -9,7 +9,7 @@ async function getOwnProduct(
 ) {
   const { data } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_files(id, file_path, file_name, file_size, file_mime, sort_order)")
     .eq("id", id)
     .eq("creator_id", userId)
     .single();
@@ -60,6 +60,17 @@ export async function PATCH(
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  const files = body.files as { path: string; name: string; size: number; mime: string }[] | undefined;
+  if (files !== undefined) {
+    await supabase.from("product_files").delete().eq("product_id", id);
+    if (files.length > 0) {
+      await supabase.from("product_files").insert(
+        files.map((f, i) => ({ product_id: id, file_path: f.path, file_name: f.name, file_size: f.size, file_mime: f.mime, sort_order: i }))
+      );
+    }
+  }
+
   return NextResponse.json(data);
 }
 

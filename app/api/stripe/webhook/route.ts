@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     const { data: product } = await supabaseAdmin
       .from("products")
-      .select("name, file_path, price, currency")
+      .select("name, file_path, price, currency, product_files(id, file_name, sort_order)")
       .eq("id", productId)
       .single();
 
@@ -72,8 +72,16 @@ export async function POST(request: NextRequest) {
       metadata: { amount: session.amount_total, order_id: order?.id },
     });
 
-    if (product.file_path && order) {
-      const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/products/${productId}/download?order=${order.id}`;
+    const productFiles = (product as unknown as { product_files?: { id: string; file_name: string; sort_order: number }[] }).product_files ?? [];
+    const hasFiles = productFiles.length > 0 || product.file_path;
+
+    if (hasFiles && order) {
+      const baseDownload = `${process.env.NEXT_PUBLIC_APP_URL}/api/products/${productId}/download?order=${order.id}`;
+      const downloadUrl = productFiles.length > 1
+        ? `${process.env.NEXT_PUBLIC_APP_URL}/download?order=${order.id}&product=${productId}`
+        : productFiles.length === 1
+          ? `${baseDownload}&file=${productFiles[0].id}`
+          : baseDownload;
       await sendPurchaseEmail({
         to: buyerEmail,
         productName: product.name as string,

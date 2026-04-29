@@ -9,7 +9,7 @@ export async function GET() {
 
   const { data } = await supabase
     .from("products")
-    .select("*")
+    .select("*, product_files(id, file_name, file_size, sort_order)")
     .eq("creator_id", user.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -53,5 +53,13 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase.from("products").insert(insert).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  const files = body.files as { path: string; name: string; size: number; mime: string }[] | undefined;
+  if (Array.isArray(files) && files.length > 0) {
+    await supabase.from("product_files").insert(
+      files.map((f, i) => ({ product_id: data.id, file_path: f.path, file_name: f.name, file_size: f.size, file_mime: f.mime, sort_order: i }))
+    );
+  }
+
   return NextResponse.json(data, { status: 201 });
 }
