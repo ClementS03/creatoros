@@ -29,16 +29,25 @@ export async function GET() {
   const orders = ordersResult.data ?? [];
   const events = eventsResult.data ?? [];
 
-  const totalRevenueCents = orders.reduce(
-    (sum, o) => sum + (o.amount_paid as number),
-    0
-  );
+  const totalRevenueCents = orders.reduce((sum, o) => sum + (o.amount_paid as number), 0);
   const totalSales = orders.length;
   const storefrontViews = events.filter((e) => e.event === "storefront_view").length;
-  const conversionRate =
-    storefrontViews > 0
-      ? ((totalSales / storefrontViews) * 100).toFixed(1)
-      : "0.0";
+  const conversionRate = storefrontViews > 0
+    ? ((totalSales / storefrontViews) * 100).toFixed(1)
+    : "0.0";
+
+  // Daily revenue chart — last 30 days
+  const dailyRevenue: Record<string, number> = {};
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dailyRevenue[d.toISOString().split("T")[0]] = 0;
+  }
+  orders.forEach((o) => {
+    const day = (o.created_at as string).split("T")[0];
+    if (day in dailyRevenue) dailyRevenue[day] += (o.amount_paid as number) / 100;
+  });
+  const chart = Object.entries(dailyRevenue).map(([date, revenue]) => ({ date, revenue: parseFloat(revenue.toFixed(2)) }));
 
   return NextResponse.json({
     revenueUsd: (totalRevenueCents / 100).toFixed(2),
@@ -47,5 +56,6 @@ export async function GET() {
     conversionRate,
     productCount: productCountResult.count ?? 0,
     period: "last 30 days",
+    chart,
   });
 }

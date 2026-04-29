@@ -1,4 +1,10 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 import { notFound } from "next/navigation";
 import { StorefrontPage } from "@/components/storefront/StorefrontPage";
 import type { Metadata } from "next";
@@ -49,8 +55,8 @@ export default async function CreatorStorefront({
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  // Fire and forget analytics
-  void supabase.from("analytics_events").insert({
+  // Fire and forget — use service role to bypass RLS for anonymous visitors
+  void supabaseAdmin.from("analytics_events").insert({
     creator_id: creator.id,
     event: "storefront_view",
     metadata: {},
