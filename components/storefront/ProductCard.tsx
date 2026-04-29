@@ -16,22 +16,26 @@ export function ProductCard({ product }: Props) {
   const discount = calcDiscount(product.price, product.compare_at_price);
 
   return (
-    <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow">
-      {/* Cover image */}
-      {product.cover_image_url && (
-        <div className="relative w-full h-48 bg-muted">
+    <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow flex gap-4 p-4">
+      {/* Cover image — left side */}
+      <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden border bg-muted flex items-center justify-center">
+        {product.cover_image_url ? (
           <Image
             src={product.cover_image_url}
             alt={product.name}
-            fill
-            className="object-cover"
+            width={80}
+            height={80}
+            className="object-cover w-full h-full"
           />
-        </div>
-      )}
+        ) : (
+          <span className="text-2xl">📄</span>
+        )}
+      </div>
 
-      <div className="p-5 space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="font-semibold text-base leading-snug">{product.name}</h3>
+      {/* Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-base leading-snug truncate">{product.name}</h3>
           {discount !== null && (
             <span className="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
               -{discount}%
@@ -43,9 +47,9 @@ export function ProductCard({ product }: Props) {
           <p className="text-muted-foreground text-sm line-clamp-2">{product.description}</p>
         )}
 
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-2">
-            <span className="font-bold text-lg">{price}</span>
+            <span className="font-bold text-base">{price}</span>
             {comparePrice && (
               <span className="text-sm text-muted-foreground line-through">{comparePrice}</span>
             )}
