@@ -1,4 +1,5 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { stripe } from "@/lib/stripe";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { StripeConnectBanner } from "@/components/dashboard/StripeConnectBanner";
@@ -18,7 +19,15 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
-  const stripeConnected = !!creator?.stripe_account_id;
+  let stripeConnected = false;
+  if (creator?.stripe_account_id) {
+    try {
+      const account = await stripe.accounts.retrieve(creator.stripe_account_id as string);
+      stripeConnected = account.details_submitted;
+    } catch {
+      stripeConnected = false;
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
