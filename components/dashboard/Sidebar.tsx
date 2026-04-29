@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Package, BarChart2, Store,
-  CreditCard, User, PanelLeft,
+  CreditCard, User, PanelLeft, LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { createSupabaseBrowser } from "@/lib/supabase-client";
 
 const nav = [
   { href: "/dashboard",                  label: "Overview",   icon: LayoutDashboard, exact: true },
@@ -23,7 +24,14 @@ const settingsNav = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+
+  async function handleLogout() {
+    const supabase = createSupabaseBrowser();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   useEffect(() => {
     const stored = localStorage.getItem("sidebar-collapsed");
@@ -105,6 +113,27 @@ export function Sidebar() {
             </p>
           )}
           {settingsNav.map((item) => <NavLink key={item.href} {...item} />)}
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center px-2 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  <LogOut size={16} className="shrink-0" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Log out</TooltipContent>
+            </Tooltip>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2.5 px-2 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            >
+              <LogOut size={16} className="shrink-0" />
+              <span>Log out</span>
+            </button>
+          )}
         </div>
       </aside>
     </TooltipProvider>
