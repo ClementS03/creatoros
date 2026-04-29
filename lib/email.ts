@@ -249,7 +249,7 @@ export async function sendLeadMagnetEmail({
   await resend.emails.send({
     from: `${fromName} <${fromEmail}>`,
     to,
-    reply_to: replyTo,
+    replyTo,
     subject,
     html: wrapEmailBody(rawBody, fromName),
   });
@@ -279,7 +279,7 @@ export async function sendBroadcastEmail({
     return {
       from: `${fromName} <${fromEmail}>`,
       to: r.email,
-      reply_to: replyTo,
+      replyTo,
       subject,
       html: wrapEmailBody(personalizedBody, fromName),
     };
