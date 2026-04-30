@@ -5,6 +5,35 @@
 
 ---
 
+## Order bumps (`/dashboard/products/[id]`)
+
+### Dashboard
+- [ ] "Order bumps" section visible below product form
+- [ ] "Add bump" shows dropdown of other products
+- [ ] Select a product → added as bump row with default label + price
+- [ ] Edit label and price → auto-saves after 1s
+- [ ] Remove bump → row disappears
+- [ ] Add 5 bumps → "Add bump" button hides
+- [ ] Bundle price field appears when 2+ bumps added
+- [ ] Bundle price savings % shown when bundle < sum of individual
+- [ ] "Create new product" → modal opens, creates draft product and adds it as bump
+
+### Storefront (product page or LP)
+- [ ] Bumps appear below checkout button when configured
+- [ ] Each bump shows label, product name, price
+- [ ] Checking a bump → price on Buy button updates
+- [ ] Checking all bumps + bundle price set → bundle price applied, savings shown
+- [ ] Unchecking a bump → price reverts
+- [ ] Buy with 1 bump → Stripe total = main + bump price
+- [ ] Buy with all bumps + bundle price → Stripe total = main + bundle_price
+
+### Post-purchase
+- [ ] Download page shows main product files
+- [ ] Bump product files appear as separate sections below main product
+- [ ] Each bump file downloads correctly
+
+---
+
 ## LP Builder (`/dashboard/products/[id]/landing-page`)
 
 - [ ] "Edit landing page" button visible on product edit page
@@ -103,7 +132,7 @@
 
 ## Products (`/dashboard/products`)
 
-- [ ] Create paid product → required fields * marked
+- [ ] Create paid product → required fields \* marked
 - [ ] Submit without description → validation error
 - [ ] Submit without file → validation error
 - [ ] Upload cover image → thumbnail shows on left in form
@@ -202,7 +231,7 @@
 - [ ] Paid products show price + Buy button
 - [ ] Lead magnet products show Free badge + Get for free button
 - [ ] Discount badge shows when discount set
-- [ ] Cover image shows on left side of card
+- [x] Cover image shows on left side of card
 - [ ] Social links show if configured
 - [ ] Analytics view tracked on each visit
 
@@ -210,9 +239,9 @@
 
 ## Go-live checklist (pending)
 
-- [ ] Apply migrations 007-010 in Supabase SQL Editor → **done per user**
-- [ ] Apply products RLS fix SQL
-- [ ] Apply analytics_insert policy SQL
+- [x] Apply migrations 007-010 in Supabase SQL Editor → **done per user**
+- [x] Apply products RLS fix SQL
+- [x] Apply analytics_insert policy SQL
 - [ ] Configure Stripe webhook endpoint in Stripe dashboard
 - [ ] Add `STRIPE_WEBHOOK_SECRET` to Vercel env vars
 - [ ] Configure `*.creatoroshq.com` wildcard DNS
