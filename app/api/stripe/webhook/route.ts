@@ -30,13 +30,15 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const { productId, creatorId, discountCodeId } = session.metadata ?? {};
+    const { productId, creatorId, discountCodeId, bumpProductIds: bumpIdsRaw } = session.metadata ?? {};
     const buyerEmail =
       session.customer_email ?? session.customer_details?.email;
 
     if (!productId || !creatorId || !buyerEmail) {
       return NextResponse.json({ ok: true });
     }
+
+    const bumpProductIds: string[] = bumpIdsRaw ? JSON.parse(bumpIdsRaw) : [];
 
     const { data: product } = await supabaseAdmin
       .from("products")
@@ -76,6 +78,21 @@ export async function POST(request: NextRequest) {
       await supabaseAdmin.rpc("increment_discount_usage", { code_id: discountCodeId });
     }
 
+    // Create sibling orders for each bump product
+    if (bumpProductIds.length > 0) {
+      await supabaseAdmin.from("orders").insert(
+        bumpProductIds.map(bumpId => ({
+          product_id: bumpId,
+          creator_id: creatorId,
+          buyer_email: buyerEmail,
+          amount_paid: 0,
+          currency: product.currency as string,
+          platform_fee: 0,
+          stripe_payment_intent_id: paymentIntentId,
+        }))
+      );
+    }
+
     if (order) {
       await supabaseAdmin.from("subscribers").upsert({
         creator_id: creatorId,
@@ -104,7 +121,7 @@ export async function POST(request: NextRequest) {
         const hasFiles = productFiles.length > 0 || product.file_path;
         if (hasFiles) {
           const baseDownload = `${appUrl}/api/products/${productId}/download?order=${order.id}`;
-          const downloadUrl = productFiles.length > 1
+          const downloadUrl = bumpProductIds.length > 0 || productFiles.length > 1
             ? `${appUrl}/download?order=${order.id}&product=${productId}`
             : productFiles.length === 1
               ? `${baseDownload}&file=${productFiles[0].id}`
