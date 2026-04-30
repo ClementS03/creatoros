@@ -9,7 +9,7 @@ const supabaseAdmin = createClient(
 
 type Props = { searchParams: Promise<{ order?: string; product?: string }> };
 
-type FileEntry = { id: string; file_name: string; file_size: number | null; sort_order: number; product_id: string };
+type FileEntry = { id: string; file_name: string; file_size: number | null; sort_order: number; product_id: string; order_id: string };
 type ProductGroup = { name: string; files: FileEntry[] };
 
 export default async function DownloadPage({ searchParams }: Props) {
@@ -19,7 +19,7 @@ export default async function DownloadPage({ searchParams }: Props) {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, product_id")
+    .select("id, product_id, stripe_payment_intent_id")
     .eq("id", orderId)
     .eq("product_id", productId)
     .single();
@@ -36,8 +36,39 @@ export default async function DownloadPage({ searchParams }: Props) {
 
   const isBundle = (product as unknown as { is_bundle?: boolean }).is_bundle;
 
-  // Build product groups for display
-  const groups: ProductGroup[] = [];
+  // Find sibling bump orders (same payment intent, different product)
+  const bumpGroups: ProductGroup[] = [];
+  if (order.stripe_payment_intent_id) {
+    const { data: siblingOrders } = await supabaseAdmin
+      .from("orders")
+      .select("id, product_id")
+      .eq("stripe_payment_intent_id", order.stripe_payment_intent_id as string)
+      .neq("id", orderId);
+
+    if (siblingOrders && siblingOrders.length > 0) {
+      const bumpProductIds = siblingOrders.map(o => o.product_id as string);
+      const { data: bumpProducts } = await supabaseAdmin
+        .from("products")
+        .select("id, name, product_files(id, file_name, file_size, sort_order)")
+        .in("id", bumpProductIds);
+
+      if (bumpProducts) {
+        for (const bp of bumpProducts) {
+          const siblingOrder = siblingOrders.find(o => o.product_id === bp.id);
+          if (!siblingOrder) continue;
+          const files = ((bp as unknown as { product_files?: { id: string; file_name: string; file_size: number | null; sort_order: number }[] }).product_files ?? [])
+            .sort((a, b) => a.sort_order - b.sort_order)
+            .map(f => ({ ...f, product_id: bp.id as string, order_id: siblingOrder.id as string }));
+          if (files.length > 0) {
+            bumpGroups.push({ name: bp.name as string, files });
+          }
+        }
+      }
+    }
+  }
+
+  // Build main product groups
+  const mainGroups: ProductGroup[] = [];
 
   if (isBundle) {
     const bundleItems = (product as unknown as {
@@ -53,21 +84,23 @@ export default async function DownloadPage({ searchParams }: Props) {
       .forEach(item => {
         const files = (item.products.product_files ?? [])
           .sort((a, b) => a.sort_order - b.sort_order)
-          .map(f => ({ ...f, product_id: item.product_id }));
+          .map(f => ({ ...f, product_id: item.product_id, order_id: orderId }));
         if (files.length > 0) {
-          groups.push({ name: item.products.name, files });
+          mainGroups.push({ name: item.products.name, files });
         }
       });
   } else {
     const files = ((product as unknown as { product_files?: { id: string; file_name: string; file_size: number | null; sort_order: number }[] }).product_files ?? [])
       .sort((a, b) => a.sort_order - b.sort_order)
-      .map(f => ({ ...f, product_id: productId }));
+      .map(f => ({ ...f, product_id: productId, order_id: orderId }));
     if (files.length > 0) {
-      groups.push({ name: product.name as string, files });
+      mainGroups.push({ name: product.name as string, files });
     }
   }
 
-  const totalFiles = groups.reduce((sum, g) => sum + g.files.length, 0);
+  const allGroups = [...mainGroups, ...bumpGroups];
+  const showGroupHeaders = allGroups.length > 1;
+  const totalFiles = allGroups.reduce((sum, g) => sum + g.files.length, 0);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -75,18 +108,18 @@ export default async function DownloadPage({ searchParams }: Props) {
         <div className="text-center space-y-1">
           <div className="text-4xl mb-3">🎉</div>
           <h1 className="text-2xl font-bold">
-            {isBundle ? "Your bundle is ready" : "Your files are ready"}
+            {showGroupHeaders ? "Your files are ready" : "Your file is ready"}
           </h1>
           <p className="text-muted-foreground text-sm">{product.name as string}</p>
-          {isBundle && (
-            <p className="text-xs text-muted-foreground">{groups.length} products · {totalFiles} files</p>
+          {showGroupHeaders && (
+            <p className="text-xs text-muted-foreground">{allGroups.length} products · {totalFiles} files</p>
           )}
         </div>
 
         <div className="space-y-3">
-          {groups.map(group => (
+          {allGroups.map(group => (
             <div key={group.name} className="rounded-xl border overflow-hidden">
-              {isBundle && (
+              {showGroupHeaders && (
                 <div className="px-4 py-2.5 bg-muted/40 border-b">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{group.name}</p>
                 </div>
@@ -95,7 +128,7 @@ export default async function DownloadPage({ searchParams }: Props) {
                 {group.files.map(f => (
                   <a
                     key={f.id}
-                    href={`/api/products/${f.product_id}/download?order=${orderId}&file=${f.id}`}
+                    href={`/api/products/${f.product_id}/download?order=${f.order_id}&file=${f.id}`}
                     className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors"
                   >
                     <File size={18} className="text-muted-foreground shrink-0" />
