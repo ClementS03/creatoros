@@ -8,6 +8,7 @@ import { ProductPageClient } from "@/components/storefront/ProductPageClient";
 import { LandingPage } from "@/components/storefront/LandingPage";
 import { calcDiscount, formatPrice } from "@/lib/storefront-utils";
 import type { Block } from "@/types/blocks";
+import type { OrderBumps } from "@/types/index";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,7 @@ export default async function ProductPage({
 
   const { data: product } = await supabaseAdmin
     .from("products")
-    .select("id, name, description, price, currency, cover_image_url, compare_at_price, is_lead_magnet, creator_id, lp_blocks")
+    .select("id, name, description, price, currency, cover_image_url, compare_at_price, is_lead_magnet, creator_id, lp_blocks, order_bumps")
     .eq("id", productId)
     .eq("creator_id", creator.id)
     .eq("is_published", true)
@@ -74,6 +75,18 @@ export default async function ProductPage({
     .single();
 
   if (!product) notFound();
+
+  const orderBumps = product.order_bumps as OrderBumps | null;
+  const bumpProductIds = orderBumps?.items.map(i => i.product_id) ?? [];
+
+  let bumpProducts: { id: string; name: string }[] = [];
+  if (bumpProductIds.length > 0) {
+    const { data: bp } = await supabaseAdmin
+      .from("products")
+      .select("id, name")
+      .in("id", bumpProductIds);
+    bumpProducts = (bp ?? []) as { id: string; name: string }[];
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const isLocalhost = new URL(appUrl).hostname === "localhost";
@@ -83,7 +96,6 @@ export default async function ProductPage({
 
   const lpBlocks = product.lp_blocks as Block[] | null;
 
-  // LP mode
   if (lpBlocks && lpBlocks.length > 0) {
     return (
       <LandingPage
@@ -103,11 +115,12 @@ export default async function ProductPage({
           username: creator.username as string,
         }}
         storefrontUrl={storefrontUrl}
+        orderBumps={orderBumps}
+        bumpProducts={bumpProducts}
       />
     );
   }
 
-  // Simple mode (existing)
   const price = formatPrice(product.price as number, product.currency as string);
   const comparePrice = product.compare_at_price
     ? formatPrice(product.compare_at_price as number, product.currency as string)
@@ -179,6 +192,8 @@ export default async function ProductPage({
                 creatorId={product.creator_id as string}
                 isLeadMagnet={product.is_lead_magnet as boolean}
                 productName={product.name as string}
+                orderBumps={orderBumps}
+                bumpProducts={bumpProducts}
               />
             </div>
             {product.description && (

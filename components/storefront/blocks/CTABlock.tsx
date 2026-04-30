@@ -1,13 +1,17 @@
 import type { CTAData } from "@/types/blocks";
-import type { Product } from "@/types";
+import type { Product, OrderBumps } from "@/types";
 import { ProductPageClient } from "@/components/storefront/ProductPageClient";
+
+type BumpProduct = { id: string; name: string };
 
 type Props = {
   data: CTAData;
   product: Pick<Product, "id" | "price" | "is_lead_magnet" | "creator_id" | "name">;
+  orderBumps?: OrderBumps | null;
+  bumpProducts?: BumpProduct[];
 };
 
-export function CTABlock({ data, product }: Props) {
+export function CTABlock({ data, product, orderBumps, bumpProducts = [] }: Props) {
   return (
     <section className="py-12 px-4 border-t bg-gradient-to-br from-primary/5 to-primary/10">
       <div className="max-w-md mx-auto text-center space-y-4">
@@ -18,6 +22,8 @@ export function CTABlock({ data, product }: Props) {
           creatorId={product.creator_id}
           isLeadMagnet={product.is_lead_magnet}
           productName={product.name}
+          orderBumps={orderBumps}
+          bumpProducts={bumpProducts}
         />
       </div>
     </section>

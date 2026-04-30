@@ -1,5 +1,5 @@
 import type { Block } from "@/types/blocks";
-import type { Product, Creator } from "@/types";
+import type { Product, Creator, OrderBumps } from "@/types";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { HeroBlock } from "./blocks/HeroBlock";
@@ -11,14 +11,18 @@ import { VideoBlock } from "./blocks/VideoBlock";
 import { ImageBlock } from "./blocks/ImageBlock";
 import { CTABlock } from "./blocks/CTABlock";
 
+type BumpProduct = { id: string; name: string };
+
 type Props = {
   blocks: Block[];
   product: Pick<Product, "id" | "name" | "price" | "currency" | "cover_image_url" | "compare_at_price" | "is_lead_magnet" | "creator_id">;
   creator: Pick<Creator, "full_name" | "username">;
   storefrontUrl: string;
+  orderBumps?: OrderBumps | null;
+  bumpProducts?: BumpProduct[];
 };
 
-export function LandingPage({ blocks, product, creator, storefrontUrl }: Props) {
+export function LandingPage({ blocks, product, creator, storefrontUrl, orderBumps, bumpProducts = [] }: Props) {
   const sorted = [...blocks].sort((a, b) => a.order - b.order);
 
   return (
@@ -38,7 +42,7 @@ export function LandingPage({ blocks, product, creator, storefrontUrl }: Props) 
       {sorted.map(block => {
         switch (block.type) {
           case "hero":
-            return <HeroBlock key={block.id} data={block.data} product={product} />;
+            return <HeroBlock key={block.id} data={block.data} product={product} orderBumps={orderBumps} bumpProducts={bumpProducts} />;
           case "features":
             return <FeaturesBlock key={block.id} data={block.data} />;
           case "testimonials":
@@ -52,7 +56,7 @@ export function LandingPage({ blocks, product, creator, storefrontUrl }: Props) 
           case "image":
             return <ImageBlock key={block.id} data={block.data} />;
           case "cta":
-            return <CTABlock key={block.id} data={block.data} product={product} />;
+            return <CTABlock key={block.id} data={block.data} product={product} orderBumps={orderBumps} bumpProducts={bumpProducts} />;
           default:
             return null;
         }

@@ -1,14 +1,18 @@
 import type { HeroData } from "@/types/blocks";
-import type { Product } from "@/types";
+import type { Product, OrderBumps } from "@/types";
 import { ProductPageClient } from "@/components/storefront/ProductPageClient";
 import Image from "next/image";
+
+type BumpProduct = { id: string; name: string };
 
 type Props = {
   data: HeroData;
   product: Pick<Product, "id" | "price" | "currency" | "cover_image_url" | "compare_at_price" | "is_lead_magnet" | "creator_id" | "name">;
+  orderBumps?: OrderBumps | null;
+  bumpProducts?: BumpProduct[];
 };
 
-export function HeroBlock({ data, product }: Props) {
+export function HeroBlock({ data, product, orderBumps, bumpProducts = [] }: Props) {
   return (
     <section className="py-12 px-4">
       <div className="max-w-3xl mx-auto flex flex-col items-center text-center gap-6">
@@ -34,6 +38,8 @@ export function HeroBlock({ data, product }: Props) {
             creatorId={product.creator_id}
             isLeadMagnet={product.is_lead_magnet}
             productName={product.name}
+            orderBumps={orderBumps}
+            bumpProducts={bumpProducts}
           />
         </div>
       </div>
