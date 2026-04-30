@@ -46,6 +46,8 @@ export async function PATCH(
     "name", "description", "price", "currency",
     "cover_image_url", "compare_at_price",
     "is_lead_magnet", "welcome_email",
+    "is_bundle",
+    "lp_blocks",
     "file_path", "file_name", "file_size", "file_mime",
     "download_limit", "is_published",
   ];
