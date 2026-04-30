@@ -1,6 +1,9 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { ProductForm } from "@/components/products/ProductForm";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { LayoutTemplate } from "lucide-react";
 
 export default async function EditProductPage({
   params,
@@ -22,7 +25,15 @@ export default async function EditProductPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Edit product</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold">Edit product</h1>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/dashboard/products/${id}/landing-page`}>
+            <LayoutTemplate size={14} className="mr-1.5" />
+            Edit landing page
+          </Link>
+        </Button>
+      </div>
       <ProductForm product={product} />
     </div>
   );

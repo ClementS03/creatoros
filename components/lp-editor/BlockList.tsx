@@ -15,7 +15,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, X, Lock } from "lucide-react";
 import type { Block, BlockType } from "@/types/blocks";
-import { LOCKED_BLOCKS, BLOCK_META } from "@/lib/lp-utils";
+import { LOCKED_BLOCKS } from "@/types/blocks";
+import { BLOCK_META } from "@/lib/lp-utils";
 
 type Props = {
   blocks: Block[];

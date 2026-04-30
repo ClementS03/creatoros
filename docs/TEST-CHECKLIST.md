@@ -5,6 +5,27 @@
 
 ---
 
+## LP Builder (`/dashboard/products/[id]/landing-page`)
+
+- [ ] "Edit landing page" button visible on product edit page
+- [ ] Editor opens with default hero + cta blocks
+- [ ] Hero and CTA blocks show lock icon — cannot be deleted or dragged
+- [ ] Click "+ Add block" → dropdown shows all 6 addable types
+- [ ] Add Features block → appears in list, form shows below
+- [ ] Fill in Features items → live preview updates
+- [ ] Drag a block → reorders, order preserved
+- [ ] Cannot drag to position 0 (hero) or last (cta)
+- [ ] Delete a non-locked block → removed from list and preview
+- [ ] Auto-save fires 1s after any change (spinner then checkmark)
+- [ ] Click "View" → product page opens with full LP
+- [ ] Mobile: Blocks and Preview tabs work
+- [ ] Public LP renders all 8 block types correctly
+- [ ] Video block: YouTube URL → embeds correctly
+- [ ] Video block: invalid URL → block not rendered
+- [ ] If lp_blocks null → simple product page shown (no regression)
+
+---
+
 ## Bundles (`/dashboard/products/bundle`)
 
 - [ ] "Create bundle" button visible in products list
