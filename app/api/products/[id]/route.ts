@@ -48,6 +48,7 @@ export async function PATCH(
     "is_lead_magnet", "welcome_email",
     "is_bundle",
     "lp_blocks",
+    "order_bumps",
     "file_path", "file_name", "file_size", "file_mime",
     "download_limit", "is_published",
   ];
