@@ -2,6 +2,8 @@ import { stripe, calculatePlatformFee } from "@/lib/stripe";
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { calculateBumpTotal } from "@/lib/order-bump-utils";
+import type { OrderBumps } from "@/types/index";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,14 +11,19 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(request: NextRequest) {
-  const body = await request.json() as { productId: string; buyerEmail?: string; discountCodeId?: string };
-  const { productId, buyerEmail, discountCodeId } = body;
+  const body = await request.json() as {
+    productId: string;
+    buyerEmail?: string;
+    discountCodeId?: string;
+    bumpProductIds?: string[];
+  };
+  const { productId, buyerEmail, discountCodeId, bumpProductIds = [] } = body;
 
   const supabase = await createSupabaseServer();
 
   const { data: product } = await supabase
     .from("products")
-    .select("id, name, price, currency, creator_id, is_published, is_active")
+    .select("id, name, price, currency, creator_id, is_published, is_active, order_bumps")
     .eq("id", productId)
     .eq("is_published", true)
     .eq("is_active", true)
@@ -61,7 +68,14 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  if (finalPrice < 50) finalPrice = 50; // Stripe minimum $0.50
+  // Apply bump total
+  const orderBumps = product.order_bumps as OrderBumps | null;
+  const bumpTotal = orderBumps && bumpProductIds.length > 0
+    ? calculateBumpTotal(orderBumps, bumpProductIds)
+    : 0;
+
+  finalPrice = finalPrice + bumpTotal;
+  if (finalPrice < 50) finalPrice = 50;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
   const fee = calculatePlatformFee(finalPrice, creator.plan === "pro");
@@ -87,6 +101,7 @@ export async function POST(request: NextRequest) {
         productId: product.id as string,
         creatorId: product.creator_id as string,
         discountCodeId: appliedDiscountId ?? "",
+        bumpProductIds: bumpProductIds.length > 0 ? JSON.stringify(bumpProductIds) : "",
       },
     },
     success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -97,6 +112,7 @@ export async function POST(request: NextRequest) {
       productId: product.id as string,
       creatorId: product.creator_id as string,
       discountCodeId: appliedDiscountId ?? "",
+      bumpProductIds: bumpProductIds.length > 0 ? JSON.stringify(bumpProductIds) : "",
     },
   });
 
