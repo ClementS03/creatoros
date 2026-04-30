@@ -5,6 +5,21 @@
 
 ---
 
+## Bundles (`/dashboard/products/bundle`)
+
+- [ ] "Create bundle" button visible in products list
+- [ ] Select < 2 products → error "at least 2 products"
+- [ ] Select 2+ products → pricing summary shows individual value + savings %
+- [ ] Create bundle → appears in list with "Bundle" badge
+- [ ] Filter tab "Bundles" shows only bundles
+- [ ] Bundle not shown in product selection when creating another bundle
+- [ ] Bundle page on storefront shows normally with price
+- [ ] Buy bundle → Stripe checkout shows bundle price
+- [ ] After purchase → download page shows files grouped by product name
+- [ ] Each file in bundle downloads correctly
+
+---
+
 ## Product page (`/[username]/[productId]`)
 
 - [ ] Click product name on storefront → opens dedicated product page

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     const { data: product } = await supabaseAdmin
       .from("products")
-      .select("name, file_path, price, currency, product_files(id, file_name, sort_order)")
+      .select("name, file_path, price, currency, is_bundle, product_files(id, file_name, sort_order), bundle_items(product_id, products(name, file_path, product_files(id, file_name, sort_order)))")
       .eq("id", productId)
       .single();
 
@@ -86,21 +86,36 @@ export async function POST(request: NextRequest) {
       }, { onConflict: "creator_id,email", ignoreDuplicates: true });
     }
 
-    const productFiles = (product as unknown as { product_files?: { id: string; file_name: string; sort_order: number }[] }).product_files ?? [];
-    const hasFiles = productFiles.length > 0 || product.file_path;
+    const isBundle = (product as unknown as { is_bundle?: boolean }).is_bundle;
 
-    if (hasFiles && order) {
-      const baseDownload = `${process.env.NEXT_PUBLIC_APP_URL}/api/products/${productId}/download?order=${order.id}`;
-      const downloadUrl = productFiles.length > 1
-        ? `${process.env.NEXT_PUBLIC_APP_URL}/download?order=${order.id}&product=${productId}`
-        : productFiles.length === 1
-          ? `${baseDownload}&file=${productFiles[0].id}`
-          : baseDownload;
-      await sendPurchaseEmail({
-        to: buyerEmail,
-        productName: product.name as string,
-        downloadUrl,
-      });
+    if (order) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
+
+      if (isBundle) {
+        // Bundle: send multi-download page covering all included products
+        const downloadUrl = `${appUrl}/download?order=${order.id}&product=${productId}`;
+        await sendPurchaseEmail({
+          to: buyerEmail,
+          productName: product.name as string,
+          downloadUrl,
+        });
+      } else {
+        const productFiles = (product as unknown as { product_files?: { id: string; sort_order: number }[] }).product_files ?? [];
+        const hasFiles = productFiles.length > 0 || product.file_path;
+        if (hasFiles) {
+          const baseDownload = `${appUrl}/api/products/${productId}/download?order=${order.id}`;
+          const downloadUrl = productFiles.length > 1
+            ? `${appUrl}/download?order=${order.id}&product=${productId}`
+            : productFiles.length === 1
+              ? `${baseDownload}&file=${productFiles[0].id}`
+              : baseDownload;
+          await sendPurchaseEmail({
+            to: buyerEmail,
+            productName: product.name as string,
+            downloadUrl,
+          });
+        }
+      }
     }
   }
 

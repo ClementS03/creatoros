@@ -40,6 +40,13 @@ export type Subscriber = {
   unsubscribed_at: string | null;
 };
 
+export type BundleItem = {
+  id: string;
+  bundle_id: string;
+  product_id: string;
+  sort_order: number;
+};
+
 export type DiscountCode = {
   id: string;
   creator_id: string;
@@ -93,6 +100,7 @@ export type Product = {
   cover_image_url: string | null;
   compare_at_price: number | null;
   is_lead_magnet: boolean;
+  is_bundle: boolean;
   welcome_email: WelcomeEmail | null;
   file_path: string | null;
   file_name: string | null;

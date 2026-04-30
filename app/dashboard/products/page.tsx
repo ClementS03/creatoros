@@ -8,7 +8,7 @@ import { ProductActions } from "@/components/products/ProductActions";
 import { ImageIcon } from "lucide-react";
 import type { Product } from "@/types";
 
-type Filter = "all" | "paid" | "free";
+type Filter = "all" | "paid" | "free" | "bundle";
 type PageData = { products: Product[]; isFree: boolean; atLimit: boolean; freeLimit: number };
 
 export default function ProductsPage() {
@@ -23,8 +23,9 @@ export default function ProductsPage() {
 
   const { products, isFree, atLimit, freeLimit } = data;
   const filtered = products.filter(p => {
-    if (filter === "paid") return !p.is_lead_magnet;
+    if (filter === "paid") return !p.is_lead_magnet && !p.is_bundle;
     if (filter === "free") return p.is_lead_magnet;
+    if (filter === "bundle") return p.is_bundle;
     return true;
   });
 
@@ -32,6 +33,7 @@ export default function ProductsPage() {
     { id: "all", label: "All" },
     { id: "paid", label: "Paid" },
     { id: "free", label: "Free (Lead magnets)" },
+    { id: "bundle", label: "Bundles" },
   ];
 
   return (
@@ -43,7 +45,12 @@ export default function ProductsPage() {
             <Link href="/dashboard/settings/billing">Upgrade for unlimited products</Link>
           </Button>
         ) : (
-          <Button asChild><Link href="/dashboard/products/new">Add product</Link></Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/products/bundle">Create bundle</Link>
+            </Button>
+            <Button asChild size="sm"><Link href="/dashboard/products/new">Add product</Link></Button>
+          </div>
         )}
       </div>
       {isFree && (
@@ -71,6 +78,9 @@ export default function ProductsPage() {
                 <p className="font-medium truncate">{p.name}</p>
                 {p.is_lead_magnet && (
                   <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 shrink-0">Lead magnet</span>
+                )}
+                {p.is_bundle && (
+                  <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 shrink-0">Bundle</span>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-0.5">

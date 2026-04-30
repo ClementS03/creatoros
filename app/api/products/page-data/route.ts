@@ -11,7 +11,7 @@ export async function GET() {
     supabase.from("creators").select("plan").eq("id", user.id).single(),
     supabase
       .from("products")
-      .select("id, name, description, price, currency, cover_image_url, compare_at_price, is_published, is_lead_magnet, created_at")
+      .select("id, name, description, price, currency, cover_image_url, compare_at_price, is_published, is_lead_magnet, is_bundle, created_at")
       .eq("creator_id", user.id)
       .eq("is_active", true)
       .order("created_at", { ascending: false }),
