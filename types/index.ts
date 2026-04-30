@@ -40,6 +40,19 @@ export type Subscriber = {
   unsubscribed_at: string | null;
 };
 
+export type DiscountCode = {
+  id: string;
+  creator_id: string;
+  code: string;
+  type: "percentage" | "fixed";
+  value: number;
+  usage_limit: number | null;
+  used_count: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+};
+
 export type Broadcast = {
   id: string;
   creator_id: string;

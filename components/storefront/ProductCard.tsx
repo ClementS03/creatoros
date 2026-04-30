@@ -7,7 +7,7 @@ import Image from "next/image";
 import { calcDiscount, formatPrice } from "@/lib/storefront-utils";
 
 type Props = {
-  product: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type" | "cover_image_url" | "compare_at_price" | "is_lead_magnet">;
+  product: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type" | "cover_image_url" | "compare_at_price" | "is_lead_magnet" | "creator_id">;
 };
 
 export function ProductCard({ product }: Props) {
@@ -74,7 +74,7 @@ export function ProductCard({ product }: Props) {
                 Get for free
               </button>
             ) : (
-              <CheckoutButton productId={product.id} price={product.price} />
+              <CheckoutButton productId={product.id} price={product.price} creatorId={product.creator_id} />
             )}
           </div>
         </div>

@@ -51,7 +51,7 @@ export default async function CreatorStorefront({
 
   const { data: products } = await supabase
     .from("products")
-    .select("id, name, description, price, currency, type, cover_image_url, compare_at_price, is_lead_magnet")
+    .select("id, name, description, price, currency, type, cover_image_url, compare_at_price, is_lead_magnet, creator_id")
     .eq("creator_id", creator.id)
     .eq("is_published", true)
     .eq("is_active", true)

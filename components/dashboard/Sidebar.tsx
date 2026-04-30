@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Package, BarChart2, Store,
-  CreditCard, User, PanelLeft, LogOut, Users, Mail,
+  CreditCard, User, PanelLeft, LogOut, Users, Mail, Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +14,7 @@ const nav = [
   { href: "/dashboard",                  label: "Overview",   icon: LayoutDashboard, exact: true },
   { href: "/dashboard/products",         label: "Products",   icon: Package },
   { href: "/dashboard/audience",         label: "Audience",   icon: Users },
+  { href: "/dashboard/discount-codes",   label: "Discounts",  icon: Tag },
   { href: "/dashboard/storefront",       label: "Storefront", icon: Store },
   { href: "/dashboard/analytics",        label: "Analytics",  icon: BarChart2 },
 ];

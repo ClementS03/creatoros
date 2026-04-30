@@ -5,6 +5,28 @@
 
 ---
 
+## Discount codes (`/dashboard/discount-codes`)
+
+- [ ] Create percentage code (e.g. `SUMMER20` → 20%)
+- [ ] Create fixed amount code (e.g. `5OFF` → $5 off)
+- [ ] Code auto-uppercased, invalid chars stripped
+- [ ] Duplicate code → "Code already exists" error
+- [ ] Set usage limit → respects limit after N uses
+- [ ] Set expiry date → expired code rejected
+- [ ] Copy button copies code to clipboard
+- [ ] Delete code → disappears from list
+
+### On storefront
+
+- [ ] "Have a promo code?" link appears under Buy button
+- [ ] Enter valid code → "SUMMER20 applied (-20%)" shown, price updates
+- [ ] Enter invalid code → error message shown
+- [ ] Enter expired code → error message shown
+- [ ] Buy with discount applied → Stripe checkout shows discounted price
+- [ ] After purchase → `used_count` increments on code
+
+---
+
 ## Auth
 
 - [ ] Sign up with email → receive branded confirmation email

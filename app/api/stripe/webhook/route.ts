@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const { productId, creatorId } = session.metadata ?? {};
+    const { productId, creatorId, discountCodeId } = session.metadata ?? {};
     const buyerEmail =
       session.customer_email ?? session.customer_details?.email;
 
@@ -71,6 +71,10 @@ export async function POST(request: NextRequest) {
       product_id: productId,
       metadata: { amount: session.amount_total, order_id: order?.id },
     });
+
+    if (discountCodeId) {
+      await supabaseAdmin.rpc("increment_discount_usage", { code_id: discountCodeId });
+    }
 
     if (order) {
       await supabaseAdmin.from("subscribers").upsert({

@@ -1,10 +1,16 @@
 import { stripe, calculatePlatformFee } from "@/lib/stripe";
 import { createSupabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
 export async function POST(request: NextRequest) {
-  const body = await request.json() as { productId: string; buyerEmail?: string };
-  const { productId, buyerEmail } = body;
+  const body = await request.json() as { productId: string; buyerEmail?: string; discountCodeId?: string };
+  const { productId, buyerEmail, discountCodeId } = body;
 
   const supabase = await createSupabaseServer();
 
@@ -16,9 +22,7 @@ export async function POST(request: NextRequest) {
     .eq("is_active", true)
     .single();
 
-  if (!product) {
-    return NextResponse.json({ error: "Product not found" }, { status: 404 });
-  }
+  if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
   const { data: creator } = await supabase
     .from("creators")
@@ -27,17 +31,40 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (!creator?.stripe_account_id) {
-    return NextResponse.json(
-      { error: "Creator payments not set up" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Creator payments not set up" }, { status: 400 });
   }
 
+  // Apply discount code
+  let finalPrice = product.price as number;
+  let appliedDiscountId: string | null = null;
+
+  if (discountCodeId) {
+    const { data: dc } = await supabaseAdmin
+      .from("discount_codes")
+      .select("id, type, value, usage_limit, used_count, expires_at, is_active")
+      .eq("id", discountCodeId)
+      .eq("creator_id", product.creator_id)
+      .eq("is_active", true)
+      .single();
+
+    if (
+      dc &&
+      (dc.usage_limit === null || (dc.used_count as number) < (dc.usage_limit as number)) &&
+      (!dc.expires_at || new Date(dc.expires_at as string) >= new Date())
+    ) {
+      if (dc.type === "percentage") {
+        finalPrice = Math.round(finalPrice * (1 - (dc.value as number) / 100));
+      } else {
+        finalPrice = Math.max(0, finalPrice - (dc.value as number));
+      }
+      appliedDiscountId = dc.id as string;
+    }
+  }
+
+  if (finalPrice < 50) finalPrice = 50; // Stripe minimum $0.50
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
-  const fee = calculatePlatformFee(
-    product.price as number,
-    creator.plan === "pro"
-  );
+  const fee = calculatePlatformFee(finalPrice, creator.plan === "pro");
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -48,7 +75,7 @@ export async function POST(request: NextRequest) {
         price_data: {
           currency: product.currency as string,
           product_data: { name: product.name as string },
-          unit_amount: product.price as number,
+          unit_amount: finalPrice,
         },
         quantity: 1,
       },
@@ -59,6 +86,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         productId: product.id as string,
         creatorId: product.creator_id as string,
+        discountCodeId: appliedDiscountId ?? "",
       },
     },
     success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -68,6 +96,7 @@ export async function POST(request: NextRequest) {
     metadata: {
       productId: product.id as string,
       creatorId: product.creator_id as string,
+      discountCodeId: appliedDiscountId ?? "",
     },
   });
 
