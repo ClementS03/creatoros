@@ -91,6 +91,17 @@ export type WelcomeEmail = {
   body: string;
 };
 
+export type OrderBumpItem = {
+  product_id: string;
+  custom_price: number;
+  label: string;
+};
+
+export type OrderBumps = {
+  items: OrderBumpItem[];
+  bundle_price: number | null;
+};
+
 export type Product = {
   id: string;
   creator_id: string;
@@ -105,6 +116,7 @@ export type Product = {
   is_bundle: boolean;
   welcome_email: WelcomeEmail | null;
   lp_blocks: Block[] | null;
+  order_bumps: OrderBumps | null;
   file_path: string | null;
   file_name: string | null;
   file_size: number | null;
