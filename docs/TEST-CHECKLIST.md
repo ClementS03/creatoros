@@ -5,6 +5,22 @@
 
 ---
 
+## Product page (`/[username]/[productId]`)
+
+- [ ] Click product name on storefront → opens dedicated product page
+- [ ] Direct URL works: `username.creatoroshq.com/username/[id]`
+- [ ] Cover image shows large (square aspect ratio)
+- [ ] Full description displayed (not truncated)
+- [ ] Price + discount badge shown
+- [ ] Paid product: Buy button with promo code field works
+- [ ] Lead magnet: "Get for free" opens modal
+- [ ] "Back to [creator name]" link returns to storefront
+- [ ] Non-existent product → 404
+- [ ] Unpublished product → 404
+- [ ] OG meta tags correct (title, description, image) for social sharing
+
+---
+
 ## Discount codes (`/dashboard/discount-codes`)
 
 - [ ] Create percentage code (e.g. `SUMMER20` → 20%)

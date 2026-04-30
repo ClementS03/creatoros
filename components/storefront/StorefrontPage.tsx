@@ -28,7 +28,7 @@ const SOCIAL_ICONS: Record<string, React.ReactNode> = {
 };
 
 type Props = {
-  creator: Pick<Creator, "full_name" | "username" | "bio" | "avatar_url" | "brand_color" | "social_links">;
+  creator: Pick<Creator, "id" | "full_name" | "username" | "bio" | "avatar_url" | "brand_color" | "social_links">;
   products: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type" | "cover_image_url" | "compare_at_price" | "is_lead_magnet" | "creator_id">[];
 };
 
@@ -78,7 +78,7 @@ export function StorefrontPage({ creator, products }: Props) {
         {products.length > 0 ? (
           <div className="grid gap-4">
             {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} username={creator.username} />
             ))}
           </div>
         ) : (

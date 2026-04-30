@@ -4,13 +4,15 @@ import type { Product } from "@/types";
 import { CheckoutButton } from "@/components/checkout/CheckoutButton";
 import { LeadMagnetModal } from "./LeadMagnetModal";
 import Image from "next/image";
+import Link from "next/link";
 import { calcDiscount, formatPrice } from "@/lib/storefront-utils";
 
 type Props = {
   product: Pick<Product, "id" | "name" | "description" | "price" | "currency" | "type" | "cover_image_url" | "compare_at_price" | "is_lead_magnet" | "creator_id">;
+  username: string;
 };
 
-export function ProductCard({ product }: Props) {
+export function ProductCard({ product, username }: Props) {
   const [showModal, setShowModal] = useState(false);
   const price = formatPrice(product.price, product.currency);
   const comparePrice = product.compare_at_price
@@ -37,7 +39,9 @@ export function ProductCard({ product }: Props) {
 
         <div className="flex-1 min-w-0 flex flex-col justify-between gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-base leading-snug truncate">{product.name}</h3>
+            <Link href={`/${username}/${product.id}`} className="font-semibold text-base leading-snug truncate hover:underline">
+              {product.name}
+            </Link>
             {product.is_lead_magnet ? (
               <span className="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                 Free

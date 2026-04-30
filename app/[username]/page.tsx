@@ -43,7 +43,7 @@ export default async function CreatorStorefront({
 
   const { data: creator } = await supabase
     .from("creators")
-    .select("id, full_name, username, bio, avatar_url, brand_color, social_links")
+    .select("id, full_name, username, bio, avatar_url, brand_color, social_links, send_domain_verified, custom_send_domain, resend_domain_id")
     .eq("username", username)
     .single();
 
