@@ -4,11 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tag, X, CheckCircle2, Loader2 } from "lucide-react";
 
-type Props = { productId: string; price: number; creatorId: string };
+type Props = {
+  productId: string;
+  price: number;
+  creatorId: string;
+  bumpProductIds?: string[];
+  bumpExtraAmount?: number;
+};
 
 type DiscountResult = { id: string; code: string; type: "percentage" | "fixed"; value: number };
 
-export function CheckoutButton({ productId, price, creatorId }: Props) {
+export function CheckoutButton({ productId, price, creatorId, bumpProductIds = [], bumpExtraAmount = 0 }: Props) {
   const [loading, setLoading] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [codeInput, setCodeInput] = useState("");
@@ -16,11 +22,13 @@ export function CheckoutButton({ productId, price, creatorId }: Props) {
   const [discount, setDiscount] = useState<DiscountResult | null>(null);
   const [codeError, setCodeError] = useState<string | null>(null);
 
-  const discountedPrice = discount
+  const discountedBase = discount
     ? discount.type === "percentage"
       ? Math.round(price * (1 - discount.value / 100))
       : Math.max(0, price - discount.value)
     : price;
+
+  const discountedPrice = discountedBase + bumpExtraAmount;
 
   async function handleValidateCode() {
     if (!codeInput.trim()) return;
@@ -52,7 +60,7 @@ export function CheckoutButton({ productId, price, creatorId }: Props) {
     const res = await fetch("/api/stripe/create-checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, discountCodeId: discount?.id }),
+      body: JSON.stringify({ productId, discountCodeId: discount?.id, bumpProductIds }),
     });
     if (!res.ok) { setLoading(false); return; }
     const { url } = await res.json() as { url: string };
@@ -61,11 +69,10 @@ export function CheckoutButton({ productId, price, creatorId }: Props) {
 
   return (
     <div className="space-y-2">
-      {/* Price display */}
       <div className="flex items-center gap-2 justify-end">
         {discount && (
           <span className="text-sm text-muted-foreground line-through">
-            ${(price / 100).toFixed(2)}
+            ${((price + bumpExtraAmount) / 100).toFixed(2)}
           </span>
         )}
         <Button onClick={handleCheckout} disabled={loading} size="sm">
@@ -78,7 +85,6 @@ export function CheckoutButton({ productId, price, creatorId }: Props) {
         </Button>
       </div>
 
-      {/* Discount code */}
       {discount ? (
         <div className="flex items-center gap-1.5 justify-end text-xs text-green-600 dark:text-green-400">
           <CheckCircle2 size={12} />
