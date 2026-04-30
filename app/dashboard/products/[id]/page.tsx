@@ -1,5 +1,6 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { ProductForm } from "@/components/products/ProductForm";
+import { OrderBumpsEditor } from "@/components/products/OrderBumpsEditor";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export default async function EditProductPage({
         </Button>
       </div>
       <ProductForm product={product} />
+      <OrderBumpsEditor productId={id} />
     </div>
   );
 }
