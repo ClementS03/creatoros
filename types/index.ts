@@ -1,3 +1,5 @@
+import type { Block } from "./blocks";
+
 export type Plan = "free" | "pro";
 
 export type Creator = {
@@ -102,6 +104,7 @@ export type Product = {
   is_lead_magnet: boolean;
   is_bundle: boolean;
   welcome_email: WelcomeEmail | null;
+  lp_blocks: Block[] | null;
   file_path: string | null;
   file_name: string | null;
   file_size: number | null;
