@@ -4,7 +4,7 @@ import { OrderBumpsEditor } from "@/components/products/OrderBumpsEditor";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LayoutTemplate } from "lucide-react";
+import { LayoutTemplate, BookOpen } from "lucide-react";
 
 export default async function EditProductPage({
   params,
@@ -28,12 +28,22 @@ export default async function EditProductPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Edit product</h1>
-        <Button asChild variant="outline" size="sm">
-          <Link href={`/dashboard/products/${id}/landing-page`}>
-            <LayoutTemplate size={14} className="mr-1.5" />
-            Edit landing page
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {(product.type as string) === "course" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/dashboard/products/${id}/course`}>
+                <BookOpen size={14} className="mr-1.5" />
+                Edit course
+              </Link>
+            </Button>
+          )}
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/dashboard/products/${id}/landing-page`}>
+              <LayoutTemplate size={14} className="mr-1.5" />
+              Edit landing page
+            </Link>
+          </Button>
+        </div>
       </div>
       <ProductForm product={product} />
       <OrderBumpsEditor productId={id} />
