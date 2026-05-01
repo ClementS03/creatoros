@@ -5,6 +5,45 @@
 
 ---
 
+## Video Courses
+
+### Course creation (`/dashboard/products/[id]/course`)
+- [ ] Create a product with type "course" → "Edit course" button visible on edit page
+- [ ] Course editor opens with empty state
+- [ ] Add section → appears in tree
+- [ ] Add lesson → form opens on right
+- [ ] Set title + video URL (YouTube) → "✓ Valid URL" shown
+- [ ] Set drip_days = 7 → shown as ⏳ 7d in tree
+- [ ] Drag section → reorders
+- [ ] Delete lesson → removed; delete section → removed with lessons
+- [ ] Auto-save fires 1s after change
+- [ ] Students button → opens students page
+
+### Students page (`/dashboard/courses/[productId]/students`)
+- [ ] Lists enrolled buyers with progress bar
+- [ ] "Unlock all" unlocks all dripped lessons for that buyer
+
+### Course player (`/course/[productId]`)
+- [ ] Visit without session → redirected to `/portal/login?next=/course/[id]`
+- [ ] Visit without purchase → "You don't have access" error
+- [ ] After purchase → player loads with lesson sidebar
+- [ ] drip_days=0 → lesson available immediately
+- [ ] drip_days=7, ordered today → locked, shows unlock date
+- [ ] drip_days=7, ordered 8+ days ago → available
+- [ ] Manually unlocked → available even if drip not passed
+- [ ] Click lesson → video loads
+- [ ] Video ends (YouTube) → auto-marked complete in sidebar
+- [ ] "Mark as complete" button → lesson checked
+- [ ] Progress bar updates
+- [ ] "Next lesson →" navigates correctly
+- [ ] Mobile: Lessons / Player tabs work
+- [ ] "Access course" in portal → redirects to player
+
+### Email
+- [ ] After course purchase → "You're enrolled!" email with course link
+
+---
+
 ## Buyer Accounts (`/portal`)
 
 - [ ] Visit `/portal` without session → redirected to `/portal/login`

@@ -1,6 +1,6 @@
 import { stripe } from "@/lib/stripe";
 import { createClient } from "@supabase/supabase-js";
-import { sendPurchaseEmail } from "@/lib/email";
+import { sendPurchaseEmail, sendCourseAccessEmail } from "@/lib/email";
 import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     const { data: product } = await supabaseAdmin
       .from("products")
-      .select("name, file_path, price, currency, is_bundle, product_files(id, file_name, sort_order), bundle_items(product_id, products(name, file_path, product_files(id, file_name, sort_order)))")
+      .select("name, file_path, price, currency, type, is_bundle, product_files(id, file_name, sort_order), bundle_items(product_id, products(name, file_path, product_files(id, file_name, sort_order)))")
       .eq("id", productId)
       .single();
 
@@ -104,12 +104,18 @@ export async function POST(request: NextRequest) {
     }
 
     const isBundle = (product as unknown as { is_bundle?: boolean }).is_bundle;
+    const productType = (product as unknown as { type?: string }).type;
 
     if (order) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
 
-      if (isBundle) {
-        // Bundle: send multi-download page covering all included products
+      if (productType === "course") {
+        await sendCourseAccessEmail({
+          to: buyerEmail,
+          productName: product.name as string,
+          courseUrl: `${appUrl}/course/${productId}`,
+        });
+      } else if (isBundle) {
         const downloadUrl = `${appUrl}/download?order=${order.id}&product=${productId}`;
         await sendPurchaseEmail({
           to: buyerEmail,
