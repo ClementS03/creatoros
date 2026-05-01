@@ -23,31 +23,33 @@
 
 ---
 
-## 🔲 Phase 2 — Audience Building (Next priority)
+## ✅ Phase 2 — Audience Building (Done)
 
-**Goal:** Help creators build their email list before they sell anything.
-
-| Feature | Priority | Complexity |
-|---|---|---|
-| **Lead magnet** — free product with email capture (no Stripe) | 🔴 P0 | Medium |
-| **Email list** — store subscriber emails, export CSV | 🔴 P0 | Low |
-| **Discount codes** — percentage or fixed amount, usage limit | 🟠 P1 | Low |
-| **Bundle products** — sell multiple products together at a discount | 🟠 P1 | Medium |
-| **Order bump** — upsell at checkout ("add X for $Y") | 🟡 P2 | Medium |
+| Feature | Status |
+|---|---|
+| **Lead magnet** — free product with email capture | ✅ |
+| **Email list** — subscribers, CSV export | ✅ |
+| **Broadcast emails** — newsletter to all subscribers | ✅ |
+| **Discount codes** — percentage or fixed, usage limit, expiry | ✅ |
+| **Bundle products** — sell multiple products together | ✅ |
+| **Dedicated product page** — `/[username]/[productId]` with OG tags | ✅ |
+| **LP Builder** — drag-and-drop landing page per product (8 block types) | ✅ |
+| **Order bump** — up to 5 add-ons before checkout, bundle pricing | ✅ |
+| **Email settings** — custom From name, custom send domain (Resend) | ✅ |
 
 ---
 
-## 🔲 Phase 3 — Content & Courses
+## ✅ Phase 3 — Content & Courses (Done)
 
-**Goal:** Let creators sell knowledge, not just files.
-
-| Feature | Priority | Complexity |
-|---|---|---|
-| **Video course** — sections + lessons, YouTube/Vimeo embed or Mux hosted | 🔴 P0 | High |
-| **Course player** — progress tracking, locked/unlocked lessons | 🔴 P0 | High |
-| **Content gating** — buyer-only access to course/content | 🔴 P0 | Medium |
-| **Drip content** — unlock lessons over time after purchase | 🟠 P1 | Medium |
-| **Quizzes / certificates** | 🟡 P2 | High |
+| Feature | Status |
+|---|---|
+| **Buyer accounts** — magic link auth, `/portal` purchases page | ✅ |
+| **Video course product type** — sections + lessons, YouTube/Vimeo embed | ✅ |
+| **Course editor** — drag-and-drop sections/lessons, auto-save | ✅ |
+| **Course player** — gated access, sidebar, progress tracking | ✅ |
+| **Drip content** — unlock lessons N days after purchase | ✅ |
+| **Manual unlock** — creator unlocks lessons per buyer | ✅ |
+| **Students dashboard** — progress per buyer, unlock-all | ✅ |
 
 ---
 
@@ -58,24 +60,22 @@
 | Feature | Priority | Complexity |
 |---|---|---|
 | **Membership product** — recurring Stripe subscription, monthly/yearly | 🔴 P0 | High |
-| **Member portal** — buyer login, access to all their purchases | 🔴 P0 | High |
+| **Member portal** — buyer login already done ✅ — add subscription management | 🔴 P0 | Medium |
 | **Tiered memberships** — multiple levels (free / basic / premium) | 🟠 P1 | High |
 | **Membership-only content** — posts, files, videos behind paywall | 🟠 P1 | Medium |
 | **Free community tier** — email capture with optional paid upgrade | 🟠 P1 | Medium |
 
 ---
 
-## 🔲 Phase 5 — Email Marketing
-
-**Goal:** Creators communicate directly with their audience without leaving CreatorOS.
+## 🔲 Phase 5 — Email Marketing (Partial)
 
 | Feature | Priority | Complexity |
 |---|---|---|
-| **Broadcast emails** — one-time newsletter to all subscribers | 🔴 P0 | Medium |
+| **Broadcast emails** ✅ already done | — | — |
 | **Email sequences** — automated drip (welcome series, course onboarding) | 🟠 P1 | High |
-| **Segments** — filter by: all subscribers, buyers, free subscribers, course students | 🟠 P1 | Medium |
-| **Email templates editor** — drag-and-drop or markdown | 🟡 P2 | High |
+| **Segments** ✅ already done (buyers / lead magnet / newsletter) | — | — |
 | **Open/click tracking** | 🟡 P2 | Medium |
+| **Email templates editor** | 🟡 P2 | High |
 
 ---
 
@@ -99,8 +99,8 @@
 
 | Feature | Priority | Complexity |
 |---|---|---|
-| **Coaching session** — 1:1 booking with calendar link (Calendly embed or native) | 🟠 P1 | Medium |
-| **Group webinar** — event with limited seats, live or recorded | 🟠 P1 | High |
+| **Coaching session** — 1:1 booking with calendar link | 🟠 P1 | Medium |
+| **Group webinar** — event with limited seats | 🟠 P1 | High |
 | **Service product type** — delivery via DM / link / file | 🟡 P2 | Medium |
 
 ---
@@ -111,7 +111,7 @@
 
 | Feature | Priority | Complexity |
 |---|---|---|
-| **Affiliate system** — creators give referral links to fans, earn % per sale | 🟠 P1 | High |
+| **Affiliate system** — referral links, earn % per sale | 🟠 P1 | High |
 | **Custom storefront domain** — `shop.mycreator.com` | 🟠 P1 | Medium |
 | **Product reviews** — buyers leave stars + text | 🟡 P2 | Medium |
 | **Waitlist / pre-order** — collect emails before launch | 🟡 P2 | Low |
@@ -124,12 +124,12 @@
 
 | Feature | Priority | Complexity |
 |---|---|---|
-| **Advanced analytics** — UTM tracking, funnel, heatmap, cohorts | 🟠 P1 | High |
+| **Advanced analytics** — UTM tracking, funnel, cohorts | 🟠 P1 | High |
 | **Visual product card editor** — customize card layout/style | 🟠 P1 | Medium |
 | **Storefront customization** — fonts, colors, layout sections | 🟠 P1 | High |
-| **Product page** — dedicated URL per product with full description | 🟠 P1 | Medium |
+| **Video upload** — direct upload via Mux/Bunny (Phase 3 extension) | 🟠 P1 | High |
+| **Course preview** — free first lesson visible without purchase | 🟡 P2 | Low |
 | **Testimonials section** — on storefront | 🟡 P2 | Low |
-| **FAQ section** — per product or global | 🟡 P2 | Low |
 
 ---
 
@@ -142,19 +142,19 @@
 | **ConvertKit / Mailchimp sync** | 🟡 P2 | Medium |
 | **Google Analytics integration** | 🟡 P2 | Low |
 | **Mobile app (PWA first)** | 🟡 P2 | High |
-| **FreelanceOS native integration** — link CreatorOS storefront from FreelanceOS profile | 🟠 P1 | Low |
+| **FreelanceOS native integration** | 🟠 P1 | Low |
 
 ---
 
 ## Build order recommendation
 
 ```
-Phase 2 (Lead magnet + email list) 
-  → Phase 2 (Discount codes + bundles)
-    → Phase 3 (Video courses)
-      → Phase 4 (Membership)
-        → Phase 5 (Email marketing)
-          → Phase 6 (Community)
+✅ Phase 1 (MVP)
+✅ Phase 2 (Audience + monetization tools)
+✅ Phase 3 (Courses + buyer accounts)
+  → Phase 4 (Membership — recurring revenue)
+    → Phase 5 (Email sequences)
+      → Phase 6 (Community)
 ```
 
-Start with Phase 2. Each phase unlocks the next monetization layer.
+**Next priority:** Phase 4 — Membership products. Buyer accounts are already done ✅, making this much faster to implement.
