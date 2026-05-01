@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const rootDomain = new URL(appUrl).hostname;
 
-  // Subdomain detection: username.creatoroshq.com
+  // Subdomain rewrite: username.creatoroshq.com → /[username]/...
   const isSubdomain =
     hostname !== rootDomain &&
     hostname !== `www.${rootDomain}` &&
@@ -41,9 +41,24 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Protect /dashboard
+  // Protect /dashboard → /login
   if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Protect /portal (except /portal/login and /portal/auth/*) → /portal/login
+  const isPortalPublic =
+    request.nextUrl.pathname === "/portal/login" ||
+    request.nextUrl.pathname.startsWith("/portal/auth");
+
+  if (request.nextUrl.pathname.startsWith("/portal") && !isPortalPublic && !user) {
+    return NextResponse.redirect(new URL("/portal/login", request.url));
+  }
+
+  // Protect /course/* → /portal/login?next=...
+  if (request.nextUrl.pathname.startsWith("/course/") && !user) {
+    const next = encodeURIComponent(request.nextUrl.pathname);
+    return NextResponse.redirect(new URL(`/portal/login?next=${next}`, request.url));
   }
 
   return response;

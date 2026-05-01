@@ -5,6 +5,20 @@
 
 ---
 
+## Buyer Accounts (`/portal`)
+
+- [ ] Visit `/portal` without session → redirected to `/portal/login`
+- [ ] Visit `/course/[id]` without session → redirected to `/portal/login?next=/course/[id]`
+- [ ] Enter email on login page → "Check your inbox" shown
+- [ ] Click magic link in email → redirected to `/portal`
+- [ ] Portal shows all products purchased with that email
+- [ ] Digital product → "Download" link → existing download page
+- [ ] Course product → "Access course" link → `/course/[id]`
+- [ ] Sign out → redirected to `/portal/login`
+- [ ] Purchase email contains portal link
+
+---
+
 ## Order bumps (`/dashboard/products/[id]`)
 
 ### Dashboard

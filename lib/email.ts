@@ -11,6 +11,7 @@ export async function sendPurchaseEmail({
   productName: string;
   downloadUrl: string;
 }) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://creatoroshq.com";
   await resend.emails.send({
     from: "CreatorOS <hello@creatoroshq.com>",
     to,
@@ -25,7 +26,43 @@ export async function sendPurchaseEmail({
            style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
           Download now
         </a>
-        <p style="color: #999; font-size: 12px; margin-top: 32px;">Powered by CreatorOS</p>
+        <p style="color: #999; font-size: 12px; margin-top: 32px;">
+          Access all your purchases anytime at <a href="${appUrl}/portal" style="color: #6366f1;">${appUrl}/portal</a>
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 8px;">Powered by CreatorOS</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendCourseAccessEmail({
+  to,
+  productName,
+  courseUrl,
+}: {
+  to: string;
+  productName: string;
+  courseUrl: string;
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://creatoroshq.com";
+  await resend.emails.send({
+    from: "CreatorOS <hello@creatoroshq.com>",
+    to,
+    subject: `You're enrolled: ${productName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+        <h1 style="font-size: 24px; margin-bottom: 8px;">You're enrolled! 🎓</h1>
+        <p style="color: #666; margin-bottom: 24px;">
+          You now have access to <strong>${productName}</strong>. Click below to start learning.
+        </p>
+        <a href="${courseUrl}"
+           style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+          Start course
+        </a>
+        <p style="color: #999; font-size: 12px; margin-top: 32px;">
+          Access all your purchases at <a href="${appUrl}/portal" style="color: #6366f1;">${appUrl}/portal</a>
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 8px;">Powered by CreatorOS</p>
       </div>
     `,
   });
