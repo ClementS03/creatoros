@@ -73,7 +73,7 @@ export type Broadcast = {
   sent_at: string;
 };
 
-export type ProductType = "digital";
+export type ProductType = "digital" | "course";
 
 export type ProductFile = {
   id: string;
@@ -126,6 +126,31 @@ export type Product = {
   is_active: boolean;
   created_at: string;
   product_files?: ProductFile[];
+};
+
+export type CourseSection = {
+  id: string;
+  product_id: string;
+  title: string;
+  sort_order: number;
+  lessons?: CourseLesson[];
+};
+
+export type CourseLesson = {
+  id: string;
+  section_id: string;
+  product_id: string;
+  title: string;
+  video_url: string | null;
+  description: string | null;
+  drip_days: number;
+  sort_order: number;
+};
+
+export type LessonProgress = {
+  lesson_id: string;
+  completed: boolean;
+  completed_at: string | null;
 };
 
 export type Order = {
