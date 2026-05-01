@@ -27,13 +27,30 @@ type OrderRow = {
 export default async function PortalPage() {
   const user = await requireBuyer();
 
-  const { data: orders } = await supabaseAdmin
+  // Query by buyer_user_id first (set at purchase), fall back to buyer_email
+  const { data: ordersByUserId } = await supabaseAdmin
+    .from("orders")
+    .select("id, product_id, amount_paid, currency, created_at, products(id, name, cover_image_url, type)")
+    .eq("buyer_user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const { data: ordersByEmail } = await supabaseAdmin
     .from("orders")
     .select("id, product_id, amount_paid, currency, created_at, products(id, name, cover_image_url, type)")
     .eq("buyer_email", user.email!)
+    .is("buyer_user_id", null)
     .order("created_at", { ascending: false });
 
-  const rows = (orders ?? []).map(o => ({
+  // Merge both result sets, deduplicate by order id
+  const allOrders = [...(ordersByUserId ?? []), ...(ordersByEmail ?? [])];
+  const seen = new Set<string>();
+  const orders = allOrders.filter(o => {
+    if (seen.has(o.id)) return false;
+    seen.add(o.id);
+    return true;
+  });
+
+  const rows = orders.map(o => ({
     ...o,
     products: Array.isArray(o.products) ? o.products[0] ?? null : o.products,
   })) as OrderRow[];

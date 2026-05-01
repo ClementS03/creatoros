@@ -53,12 +53,38 @@ export async function POST(request: NextRequest) {
         ? session.payment_intent
         : session.payment_intent?.id ?? "";
 
+    // Find or create Supabase user for buyer
+    let buyerUserId: string | null = null;
+    try {
+      // Look up existing auth user by email via schema('auth')
+      const { data: authUser } = await (supabaseAdmin as unknown as { schema: (s: string) => typeof supabaseAdmin })
+        .schema("auth")
+        .from("users")
+        .select("id")
+        .eq("email", buyerEmail)
+        .single();
+
+      if (authUser) {
+        buyerUserId = (authUser as { id: string }).id;
+      } else {
+        // Create new Supabase user (email_confirm = true so no confirmation needed)
+        const { data: newUser } = await supabaseAdmin.auth.admin.createUser({
+          email: buyerEmail,
+          email_confirm: true,
+        });
+        buyerUserId = newUser?.user?.id ?? null;
+      }
+    } catch {
+      // Non-blocking — buyer_user_id stays null, portal still works via buyer_email
+    }
+
     const { data: order } = await supabaseAdmin
       .from("orders")
       .insert({
         product_id: productId,
         creator_id: creatorId,
         buyer_email: buyerEmail,
+        buyer_user_id: buyerUserId,
         amount_paid: session.amount_total ?? (product.price as number),
         currency: product.currency as string,
         platform_fee: (session as Stripe.Checkout.Session & { application_fee_amount?: number }).application_fee_amount ?? 0,
